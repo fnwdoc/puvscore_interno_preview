@@ -4,10 +4,9 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>PUV Score 0.0.3 — Análise Estratégica para Agências</title>
+<title>PUV Score v0.1.2.4 — Análise Estratégica para Agências</title>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600&display=swap" rel="stylesheet">
 <style>
-/* ========== TOKENS (otimizados para conversão) ========== */
 :root {
   --fs-base: 16px;
   --syne: 'Barlow Condensed', sans-serif;
@@ -16,10 +15,8 @@
   --radius-md: 14px;
   --radius-lg: 20px;
   --radius-xl: 28px;
-  --container-width: 720px;
-  --leading-normal: 1.6;
+  --container: 680px;
 }
-
 [data-theme="dark"] {
   --bg:         #090C14;
   --surface:    #0F1622;
@@ -41,8 +38,8 @@
   --shadow:     0 12px 32px rgba(0,0,0,.5);
   --tooltip-bg: #1E2D44;
   --tooltip-text:#EDF2FA;
+  --btn-on-accent: #000;
 }
-
 [data-theme="light"] {
   --bg:         #F5F8FF;
   --surface:    #FFFFFF;
@@ -56,782 +53,267 @@
   --accent:     #0A66C2;
   --accent-bg:  rgba(10,102,194,.05);
   --accent-bdr: rgba(10,102,194,.2);
-  --gold:       #B8860B;
-  --gold-bg:    rgba(184,134,11,.08);
-  --danger:     #E53E3E;
-  --success:    #2F9B5A;
-  --warn:       #E68A2E;
+  --gold:       #92640A;
+  --gold-bg:    rgba(146,100,10,.08);
+  --danger:     #C0202A;
+  --success:    #1A7A40;
+  --warn:       #A85A00;
   --shadow:     0 5px 25px rgba(0,0,0,.08);
   --tooltip-bg: #1E2A3A;
   --tooltip-text:#F8FAFE;
+  --btn-on-accent: #fff;
 }
 
-* {
-  margin: 0;
-  padding: 0;
-  box-sizing: border-box;
-}
+*{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth;font-size:var(--fs-base);overflow-x:hidden}
+body{background:var(--bg);color:var(--text);font-family:var(--inter);min-height:100vh;-webkit-font-smoothing:antialiased;transition:background .2s,color .2s}
+*:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
 
-html {
-  scroll-behavior: smooth;
-  font-size: var(--fs-base);
-  overflow-x: hidden;
-}
+/* SETTINGS */
+#settings-btn{position:fixed;bottom:1.5rem;right:1.5rem;z-index:1000;width:48px;height:48px;border-radius:50%;background:var(--surface);border:1.5px solid var(--border2);color:var(--text2);font-size:1.2rem;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:var(--shadow);transition:all .2s}
+#settings-btn:hover{border-color:var(--accent);color:var(--accent);transform:scale(1.03)}
+#settings-panel{position:fixed;bottom:5.2rem;right:1.5rem;z-index:1000;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-lg);padding:1.25rem;width:280px;box-shadow:var(--shadow);display:none;flex-direction:column;gap:1.25rem;max-height:80vh;overflow-y:auto;overscroll-behavior:contain}
+#settings-panel.open{display:flex}
+.setting-row{display:flex;flex-direction:column;gap:.5rem}
+.setting-label{font-size:.7rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.setting-value{font-size:.8rem;font-weight:600;color:var(--accent)}
+.setting-header{display:flex;justify-content:space-between;align-items:baseline}
+.theme-toggle{display:flex;background:var(--card2);border-radius:60px;padding:3px;gap:3px;border:1px solid var(--border)}
+.theme-btn{flex:1;padding:.3rem .8rem;border-radius:60px;border:none;cursor:pointer;font-size:.75rem;font-weight:600;background:transparent;color:var(--muted);transition:all .2s}
+.theme-btn.active{background:var(--accent);color:var(--btn-on-accent)}
+input[type=range]{width:100%;accent-color:var(--accent);cursor:pointer}
+.settings-api-input{width:100%;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:.55rem .75rem;font-size:.8rem;color:var(--text);outline:none;font-family:var(--inter)}
+.ia-key-st{font-size:.65rem;margin-top:.25rem;display:block;color:var(--muted)}
+.ia-key-st.ok{color:var(--success)}
+.ia-key-st.err{color:var(--danger)}
 
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: var(--inter);
-  line-height: var(--leading-normal);
-  -webkit-font-smoothing: antialiased;
-  transition: background 0.2s, color 0.2s;
-}
+/* TOOLTIP */
+[data-tip]{position:relative;cursor:help}
+[data-tip]::after{content:attr(data-tip);position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);background:var(--tooltip-bg);color:var(--tooltip-text);font-size:.72rem;line-height:1.45;padding:.5rem .85rem;border-radius:var(--radius-sm);white-space:normal;width:240px;text-align:left;box-shadow:0 6px 14px rgba(0,0,0,.2);pointer-events:none;opacity:0;transition:opacity .2s;z-index:500}
+[data-tip]::before{content:'';position:absolute;bottom:calc(100% + 2px);left:50%;transform:translateX(-50%);border:5px solid transparent;border-top-color:var(--tooltip-bg);pointer-events:none;opacity:0;transition:opacity .2s}
+[data-tip]:hover::after,[data-tip]:hover::before{opacity:1}
+.tip-icon{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;border-radius:50%;border:1.5px solid var(--muted);font-size:.65rem;font-weight:700;color:var(--muted);margin-left:.4rem;vertical-align:middle;flex-shrink:0;cursor:help}
 
-*:focus-visible {
-  outline: 2px solid var(--accent);
-  outline-offset: 3px;
-  border-radius: 6px;
-}
+/* SCREENS */
+.screen{display:none;min-height:100vh}
+.screen.active{display:block}
+#screen-input.active{display:flex;align-items:flex-start;justify-content:center;padding:2rem 1rem 0}
+#screen-loading.active{display:flex;align-items:center;justify-content:center}
+#screen-demo-choice.active{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:2rem 1rem}
 
-/* ========== CONFIGURAÇÕES (SEM CAMPO DE WEBHOOK) ========== */
-#settings-btn {
-  position: fixed;
-  bottom: 1.5rem;
-  right: 1.5rem;
-  z-index: 1000;
-  width: 48px;
-  height: 48px;
-  border-radius: 50%;
-  background: var(--surface);
-  border: 1.5px solid var(--border2);
-  color: var(--text2);
-  font-size: 1.2rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  box-shadow: var(--shadow);
-  transition: all 0.2s ease;
-}
+/* INPUT */
+.input-container{max-width:var(--container);width:100%;display:flex;flex-direction:column;gap:1.5rem}
 
-#settings-btn:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-  transform: scale(1.03);
-}
+.conversion-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:1.8rem;box-shadow:var(--shadow)}
+.version-bar{display:flex;align-items:baseline;justify-content:space-between;margin-bottom:1.2rem;flex-wrap:wrap;gap:.5rem}
+.logo-badge{display:inline-flex;align-items:center;gap:.6rem;background:var(--accent-bg);border:1px solid var(--accent-bdr);border-radius:40px;padding:.35rem 1rem}
+.logo-dot{width:8px;height:8px;border-radius:50%;background:var(--accent)}
+.logo-text{font-family:var(--syne);font-size:.85rem;font-weight:800;letter-spacing:.12em;color:var(--accent)}
+.version-tag{font-size:.7rem;font-weight:600;color:var(--muted);background:var(--card2);border:1px solid var(--border);border-radius:30px;padding:.25rem .8rem}
+.input-h1{font-family:var(--syne);font-size:clamp(2rem,7vw,3rem);font-weight:800;line-height:1.2;margin-bottom:.75rem;letter-spacing:-.01em}
+.input-h1 em{color:var(--accent);font-style:normal}
+.input-subtitle{font-size:.95rem;color:var(--text2);line-height:1.6;margin-bottom:1.6rem}
 
-#settings-panel {
-  position: fixed;
-  bottom: 5.2rem;
-  right: 1.5rem;
-  z-index: 1000;
-  background: var(--surface);
-  border: 1.5px solid var(--border2);
-  border-radius: var(--radius-lg);
-  padding: 1.25rem;
-  width: 280px;
-  backdrop-filter: blur(8px);
-  box-shadow: var(--shadow);
-  display: none;
-  flex-direction: column;
-  gap: 1.25rem;
-}
+.type-label{font-size:.7rem;font-weight:600;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);margin-bottom:.7rem}
+.type-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(80px,1fr));gap:.6rem;margin-bottom:1.25rem}
+.type-btn{border-radius:var(--radius-md);border:1.5px solid var(--border);background:var(--card2);padding:.65rem .3rem;cursor:pointer;display:flex;flex-direction:column;align-items:center;gap:.25rem;transition:all .2s}
+.type-btn.active{border-color:var(--accent);background:var(--accent-bg)}
+.type-btn.active .type-name{color:var(--accent)}
+.type-btn.coming-soon{opacity:.4;cursor:not-allowed}
+.type-icon{font-size:1.2rem;line-height:1;display:flex;align-items:center;justify-content:center;color:var(--text2)}
+.type-name{font-size:.7rem;font-weight:600;color:var(--text2)}
+.type-soon{font-size:.6rem;color:var(--muted);font-style:italic}
 
-#settings-panel.open {
-  display: flex;
-}
+.url-field{display:flex;gap:.7rem;flex-wrap:wrap;margin-bottom:.6rem}
+.url-input{flex:1;min-width:180px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-md);padding:.85rem 1.1rem;font-size:.9rem;color:var(--text);outline:none;font-family:var(--inter);transition:border .2s}
+.url-input:focus{border-color:var(--accent)}
+.url-input::placeholder{color:var(--muted)}
+.btn-primary{background:var(--accent);color:var(--btn-on-accent);border:none;border-radius:var(--radius-md);padding:.85rem 1.8rem;font-family:var(--syne);font-size:.85rem;font-weight:700;cursor:pointer;transition:all .2s;white-space:nowrap}
+.btn-primary:hover{opacity:.85;transform:translateY(-1px)}
+.btn-primary:disabled{opacity:.4;cursor:not-allowed;transform:none}
+.api-hint{font-size:.68rem;color:var(--muted);margin-bottom:1rem}
+.api-hint-btn{background:none;border:none;color:var(--accent);font-size:.68rem;cursor:pointer;font-family:var(--inter)}
 
-.setting-row {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
+.lead-form{background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem;margin-bottom:.5rem}
+.lead-header{font-size:.7rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.6rem}
+.lead-row{display:flex;gap:.6rem;flex-wrap:wrap}
+.lead-input{flex:1;min-width:130px;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:.65rem .9rem;font-size:.85rem;color:var(--text);outline:none;font-family:var(--inter);transition:border .2s}
+.lead-input:focus{border-color:var(--accent)}
+.lead-input::placeholder{color:var(--muted)}
+.lead-note{font-size:.68rem;color:var(--muted);margin-top:.6rem;line-height:1.5}
 
-.setting-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--muted);
-}
+.error-msg{background:rgba(220,38,38,.08);border-left:3px solid var(--danger);border-radius:var(--radius-sm);padding:.7rem;font-size:.8rem;color:var(--danger);display:none;margin:.75rem 0}
+.demo-link{background:none;border:none;font-size:.8rem;color:var(--muted);cursor:pointer;text-decoration:underline;transition:color .2s;margin-top:.5rem;font-family:var(--inter)}
+.demo-link:hover{color:var(--accent)}
 
-.setting-value {
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--accent);
-}
+/* BENEFITS CARD */
+.benefits-card{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:1.5rem 1.8rem;box-shadow:var(--shadow)}
+.benefits-title{font-family:var(--syne);font-size:1.1rem;font-weight:700;letter-spacing:.05em;margin-bottom:1.2rem;color:var(--text)}
+.benefits-grid{display:flex;flex-direction:column;gap:.9rem}
+.benefit-item{display:flex;gap:1rem;align-items:flex-start}
+.benefit-num{font-family:var(--syne);font-size:.88rem;font-weight:800;background:var(--accent-bg);color:var(--accent);width:28px;height:28px;display:flex;align-items:center;justify-content:center;border-radius:30px;border:1px solid var(--accent-bdr);flex-shrink:0}
+.benefit-text strong{font-size:.9rem;font-weight:600;display:block;margin-bottom:.15rem;color:var(--text)}
+.benefit-text p{font-size:.8rem;color:var(--text2);line-height:1.55}
 
-.setting-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-}
+/* PRICING CARD */
+.pricing-card-wrap{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:1.5rem 1.8rem;box-shadow:var(--shadow)}
+.pricing-title{font-family:var(--syne);font-size:1.1rem;font-weight:700;margin-bottom:1.1rem;color:var(--text)}
+.pricing-grid{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media(max-width:480px){.pricing-grid{grid-template-columns:1fr}}
+.pricing-card{border-radius:var(--radius-lg);border:1.5px solid var(--border);background:var(--card);padding:1.1rem 1.25rem;display:flex;flex-direction:column;gap:.5rem}
+.pricing-card.mensal{border-color:var(--accent-bdr);background:var(--accent-bg)}
+.pricing-tag{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.pricing-card.mensal .pricing-tag{color:var(--accent)}
+.pricing-value{font-family:var(--syne);font-size:1.6rem;font-weight:800;color:var(--text);line-height:1}
+.pricing-card.mensal .pricing-value{color:var(--accent)}
+.pricing-desc{font-size:.75rem;color:var(--muted);line-height:1.5;flex:1}
+.pricing-btn{margin-top:.35rem;font-size:.75rem;font-weight:600;padding:.5rem .9rem;border-radius:var(--radius-sm);border:none;cursor:pointer;font-family:var(--inter);transition:all .2s;text-align:center}
+.avulso-btn{background:var(--card2);color:var(--text2);border:1px solid var(--border2)}
+.avulso-btn:hover{border-color:var(--accent);color:var(--accent)}
+.mensal-btn{background:var(--accent);color:var(--btn-on-accent)}
+.mensal-btn:hover{opacity:.88}
 
-.theme-toggle {
-  display: flex;
-  background: var(--card2);
-  border-radius: 60px;
-  padding: 3px;
-  gap: 3px;
-  border: 1px solid var(--border);
-}
+/* FOOTER */
+.input-footer{margin-top:1.5rem;padding:1.25rem 0 2.5rem;border-top:1px solid var(--border);font-size:.7rem;color:var(--muted);text-align:center;letter-spacing:.04em;width:100%;display:flex;flex-direction:column;align-items:center;gap:.5rem}
+.input-footer span{color:var(--text2);font-weight:600}
 
-.theme-btn {
-  flex: 1;
-  padding: 0.3rem 0.8rem;
-  border-radius: 60px;
-  border: none;
-  cursor: pointer;
-  font-size: 0.75rem;
-  font-weight: 600;
-  background: transparent;
-  color: var(--muted);
-  transition: all 0.2s;
-}
+/* LOADING */
+.loading-center{text-align:center}
+.loading-ring{width:64px;height:64px;border-radius:50%;border:3px solid var(--border2);border-top-color:var(--accent);animation:spin .9s linear infinite;margin:0 auto 1.5rem}
+.loading-title{font-family:var(--syne);font-size:1.2rem;font-weight:700;margin-bottom:.5rem}
+.loading-step{font-size:.88rem;color:var(--muted);animation:fpulse 2s ease-in-out infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+@keyframes fpulse{0%,100%{opacity:.35}50%{opacity:1}}
+@keyframes demoBlink{0%,100%{box-shadow:0 0 0 0 rgba(221,181,90,.0);transform:scale(1)}50%{box-shadow:0 0 0 6px rgba(221,181,90,.25);transform:scale(1.03)}}
 
-.theme-btn.active {
-  background: var(--accent);
-  color: #000;
-}
+/* REPORT */
+.report-container{max-width:880px;margin:0 auto;padding:1.5rem 1rem 4rem}
+.report-header{display:flex;justify-content:space-between;align-items:flex-start;flex-wrap:wrap;border-bottom:1px solid var(--border);padding-bottom:1rem;margin-bottom:1.8rem;gap:1rem}
+.report-meta h2{font-family:var(--syne);font-size:1.5rem;font-weight:800}
+.url-tag{font-size:.8rem;color:var(--accent);word-break:break-word;margin-top:.2rem}
+.bench-tag{font-size:.72rem;color:var(--muted);margin-top:.3rem}
+.btn-back{background:transparent;border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:.5rem 1rem;font-size:.75rem;font-weight:500;cursor:pointer;color:var(--text2);transition:all .2s;font-family:var(--inter);white-space:nowrap}
+.btn-back:hover{border-color:var(--accent);color:var(--accent)}
 
-input[type="range"] {
-  width: 100%;
-  accent-color: var(--accent);
-  cursor: pointer;
-}
+.score-hero{background:var(--surface);border:1px solid var(--border2);border-radius:var(--radius-xl);padding:1.8rem;display:flex;flex-wrap:wrap;align-items:center;gap:2rem;margin-bottom:2rem}
+.score-info{flex:1;min-width:180px}
+.score-number{font-family:var(--syne);font-size:3.2rem;font-weight:800;color:var(--gold);line-height:1}
+.score-class{display:inline-block;font-size:.7rem;font-weight:600;padding:.25rem 1rem;border-radius:40px;background:var(--gold-bg);color:var(--gold);margin:.5rem 0 .6rem}
+.score-summary{font-size:.9rem;line-height:1.65;color:var(--text2)}
 
-/* ========== TOOLTIP ========== */
-[data-tip] {
-  position: relative;
-  cursor: help;
-}
+.report-section{margin-bottom:2.5rem;scroll-margin-top:80px}
+.section-timeline-label{font-family:var(--syne);font-size:.75rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;color:var(--accent);margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+.section-timeline-label::before{content:'';width:4px;height:1rem;background:var(--accent);border-radius:2px}
 
-[data-tip]::after {
-  content: attr(data-tip);
-  position: absolute;
-  bottom: calc(100% + 8px);
-  left: 50%;
-  transform: translateX(-50%);
-  background: var(--tooltip-bg);
-  color: var(--tooltip-text);
-  font-size: 0.72rem;
-  line-height: 1.45;
-  padding: 0.5rem 0.85rem;
-  border-radius: var(--radius-sm);
-  white-space: normal;
-  width: 240px;
-  text-align: left;
-  box-shadow: 0 6px 14px rgba(0,0,0,0.2);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s;
-  z-index: 500;
-  font-weight: 400;
-}
+.criteria-list{display:flex;flex-direction:column;gap:.9rem}
+.criterion{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.2rem}
+.crit-header{display:flex;justify-content:space-between;flex-wrap:wrap;gap:.5rem;margin-bottom:.5rem;align-items:center}
+.crit-name{font-size:.9rem;font-weight:500;display:flex;align-items:center}
+.crit-score{font-family:var(--syne);font-size:.85rem;font-weight:700}
+.meter-track{height:7px;background:var(--border2);border-radius:10px;overflow:hidden;margin:.7rem 0}
+.meter-fill{height:100%;width:0%;transition:width 1s cubic-bezier(.2,.9,.4,1.1);border-radius:10px}
+.crit-desc{font-size:.83rem;line-height:1.55;color:var(--text2)}
 
-[data-tip]::before {
-  content: '';
-  position: absolute;
-  bottom: calc(100% + 2px);
-  left: 50%;
-  transform: translateX(-50%);
-  border: 5px solid transparent;
-  border-top-color: var(--tooltip-bg);
-  pointer-events: none;
-  opacity: 0;
-  transition: opacity 0.2s;
-}
+.gap-wrap{overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--border)}
+.gap-table{width:100%;border-collapse:collapse;font-size:.83rem;min-width:360px}
+.gap-table th{text-align:left;padding:.7rem .9rem;background:var(--card2);font-weight:600;font-size:.7rem;text-transform:uppercase;letter-spacing:.06em}
+.gap-table th:first-child{color:var(--danger)}
+.gap-table th:last-child{color:var(--success)}
+.gap-table td{padding:.75rem .9rem;border-top:1px solid var(--border);line-height:1.5}
+.gap-table td:first-child{color:var(--warn)}
+.gap-table td:last-child{color:var(--success)}
+.gap-table tr:nth-child(even) td{background:rgba(128,128,128,.03)}
 
-[data-tip]:hover::after,
-[data-tip]:hover::before {
-  opacity: 1;
-}
+.slides-list{display:flex;flex-direction:column;gap:.9rem}
+.slide-pair{display:grid;grid-template-columns:1fr 1fr;gap:.75rem}
+@media(max-width:520px){.slide-pair{grid-template-columns:1fr}}
+.slide-card{padding:1rem;border-radius:var(--radius-md);border:1.5px solid}
+.slide-card.before{background:rgba(220,38,38,.04);border-color:rgba(220,38,38,.22)}
+.slide-card.after{background:rgba(22,163,74,.04);border-color:rgba(22,163,74,.22)}
+.slide-badge{font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;margin-bottom:.35rem}
+.slide-card.before .slide-badge{color:var(--danger)}
+.slide-card.after .slide-badge{color:var(--success)}
+.slide-elem{font-size:.78rem;font-weight:600;margin-bottom:.4rem;color:var(--text)}
+.slide-text{font-size:.78rem;color:var(--muted);line-height:1.6}
 
-.tip-icon {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 17px;
-  height: 17px;
-  border-radius: 50%;
-  border: 1.5px solid var(--muted);
-  font-size: 0.65rem;
-  font-weight: 700;
-  color: var(--muted);
-  margin-left: 0.4rem;
-  vertical-align: middle;
-  flex-shrink: 0;
-  cursor: help;
-}
+.rec-list{display:flex;flex-direction:column;gap:1rem}
+.rec-card{background:var(--card);border:1px solid var(--border);border-radius:var(--radius-md);padding:1.2rem;display:flex;gap:1rem;transition:border-color .2s}
+.rec-card:hover{border-color:var(--accent-bdr)}
+.rec-num{font-family:var(--syne);font-size:2rem;font-weight:800;color:var(--accent);opacity:.5;line-height:1;flex-shrink:0}
+.rec-priority{font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--gold);margin-bottom:.25rem}
+.rec-title{font-size:.92rem;font-weight:600;margin-bottom:.25rem}
+.rec-impact{font-size:.72rem;color:var(--accent);margin-bottom:.5rem}
+.rec-desc{font-size:.8rem;color:var(--text2);line-height:1.65}
 
-/* ========== SCREENS ========== */
-.screen {
-  display: none;
-  min-height: 100vh;
-}
+.tnav-btn{background:transparent;border:1px solid var(--border);border-radius:40px;padding:.4rem 1rem;font-size:.7rem;font-weight:500;cursor:pointer;transition:all .2s;color:var(--text2);font-family:var(--inter);white-space:nowrap}
+.tnav-btn:hover{border-color:var(--accent);color:var(--accent)}
+.tnav-btn.active{background:var(--accent-bg);border-color:var(--accent-bdr);color:var(--accent)}
 
-.screen.active {
-  display: block;
-}
+.cta-section{background:var(--surface);border-radius:var(--radius-xl);padding:1.8rem;border:1px solid var(--border2)}
+.cta-title{font-family:var(--syne);font-size:1.2rem;font-weight:800;margin-bottom:.4rem}
+.cta-subtitle{font-size:.85rem;color:var(--muted);margin-bottom:1.25rem;line-height:1.6}
+.cta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:.75rem}
+@media(max-width:560px){.cta-grid{grid-template-columns:1fr}}
+@media(max-width:500px){.hero-speedo-col{display:none!important}}
+.cta-card{background:var(--card2);border:1.5px solid var(--border);border-radius:var(--radius-md);padding:1.2rem;text-align:center;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:.6rem}
+.cta-card:hover{transform:translateY(-2px)}
+.cta-card.pa:hover{border-color:var(--accent-bdr)}
+.cta-card.pb:hover{border-color:var(--gold)}
+.cta-card.pc:hover{border-color:var(--success)}
+.cta-letter{font-family:var(--syne);font-size:1.6rem;font-weight:800}
+.cta-card.pa .cta-letter{color:var(--accent)}
+.cta-card.pb .cta-letter{color:var(--gold)}
+.cta-card.pc .cta-letter{color:var(--success)}
+.cta-name{font-size:.82rem;font-weight:600}
+.cta-desc{font-size:.73rem;color:var(--muted);line-height:1.5}
+.cta-btn{font-size:.72rem;font-weight:600;padding:.4rem .9rem;border-radius:30px;border:none;cursor:pointer;background:var(--accent-bg);color:var(--accent);font-family:var(--inter)}
+.cta-note{margin-top:1rem;padding:.85rem 1rem;background:var(--card2);border-radius:var(--radius-md);border:1px solid var(--border);font-size:.78rem;color:var(--muted);line-height:1.6}
 
-#screen-input.active {
-  display: flex;
-  align-items: flex-start;
-  justify-content: center;
-  padding: 2rem 1rem;
-}
-#screen-loading.active {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-#screen-report.active {
-  display: block;
-}
+@media print {
+  /* Hide UI elements */
+  #settings-btn, #settings-panel, #timeline-nav,
+  .btn-back, .demo-link, #screen-input, #screen-loading,
+  #json-viewer, .cta-note, #plan-unlock-btn,
+  #demo-top-bar, [id^="demo-"] { display: none !important; }
 
-/* ========== INPUT SINGLE COLUMN ========== */
-.input-container {
-  max-width: var(--container-width);
-  width: 100%;
-  margin: 0 auto;
-  display: flex;
-  flex-direction: column;
-  gap: 2.2rem;
-}
+  /* Use CSS variables — respects active theme (light or dark) */
+  body { font-size: 11pt; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
 
-.conversion-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-xl);
-  padding: 1.8rem;
-  box-shadow: var(--shadow);
-}
-
-.version-bar {
-  display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  margin-bottom: 1.2rem;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.logo-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.6rem;
-  background: var(--accent-bg);
-  border: 1px solid var(--accent-bdr);
-  border-radius: 40px;
-  padding: 0.35rem 1rem;
-}
-
-.logo-text {
-  font-family: var(--syne);
-  font-size: 0.85rem;
-  font-weight: 800;
-  letter-spacing: 0.12em;
-  color: var(--accent);
-}
-
-.version-tag {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--muted);
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: 30px;
-  padding: 0.25rem 0.8rem;
-}
-
-.input-h1 {
-  font-family: var(--syne);
-  font-size: clamp(2rem, 7vw, 3rem);
-  font-weight: 800;
-  line-height: 1.2;
-  margin-bottom: 0.8rem;
-  letter-spacing: -0.01em;
-}
-.input-h1 em {
-  color: var(--accent);
-  font-style: normal;
-}
-
-.input-subtitle {
-  font-size: 0.95rem;
-  color: var(--text2);
-  line-height: 1.6;
-  margin-bottom: 1.8rem;
-}
-
-.type-label {
-  font-size: 0.7rem;
-  font-weight: 600;
-  letter-spacing: 0.1em;
-  text-transform: uppercase;
-  color: var(--muted);
-  margin-bottom: 0.7rem;
-}
-
-.type-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
-  gap: 0.6rem;
-  margin-bottom: 1.5rem;
-}
-
-.type-btn {
-  border-radius: var(--radius-md);
-  border: 1.5px solid var(--border);
-  background: var(--card2);
-  padding: 0.65rem 0.3rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.type-btn.active {
-  border-color: var(--accent);
-  background: var(--accent-bg);
-}
-.type-btn.active .type-name {
-  color: var(--accent);
-}
-.type-btn.coming-soon {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-.type-icon {
-  font-size: 1.2rem;
-}
-.type-name {
-  font-size: 0.7rem;
-  font-weight: 600;
-  color: var(--text2);
-}
-
-.url-field {
-  display: flex;
-  gap: 0.7rem;
-  flex-wrap: wrap;
-  margin-bottom: 0.8rem;
-}
-.url-input {
-  flex: 1;
-  background: var(--surface);
-  border: 1.5px solid var(--border2);
-  border-radius: var(--radius-md);
-  padding: 0.85rem 1.1rem;
-  font-size: 0.9rem;
-  transition: border 0.2s;
-  color: var(--text);
-}
-.btn-primary {
-  background: var(--accent);
-  color: #000;
-  border: none;
-  border-radius: var(--radius-md);
-  padding: 0.85rem 1.8rem;
-  font-family: var(--syne);
-  font-size: 0.85rem;
-  font-weight: 700;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-primary:hover {
-  opacity: 0.85;
-  transform: translateY(-1px);
-}
-.api-hint {
-  font-size: 0.68rem;
-  color: var(--muted);
-  margin-bottom: 1.2rem;
-}
-.lead-form {
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 1rem;
-  margin: 1rem 0 0.8rem;
-}
-.lead-row {
-  display: flex;
-  gap: 0.6rem;
-  flex-wrap: wrap;
-  margin-top: 0.3rem;
-}
-.lead-input {
-  flex: 1;
-  background: var(--surface);
-  border: 1.5px solid var(--border2);
-  border-radius: var(--radius-sm);
-  padding: 0.7rem 0.9rem;
-  font-size: 0.85rem;
-  color: var(--text);
-}
-.lead-note {
-  font-size: 0.68rem;
-  color: var(--muted);
-  margin-top: 0.6rem;
-}
-.error-msg {
-  background: rgba(220, 38, 38, 0.08);
-  border-left: 3px solid var(--danger);
-  border-radius: var(--radius-sm);
-  padding: 0.7rem;
-  font-size: 0.8rem;
-  color: var(--danger);
-  display: none;
-  margin-bottom: 1rem;
-}
-.demo-link {
-  background: none;
-  border: none;
-  font-size: 0.8rem;
-  color: var(--muted);
-  cursor: pointer;
-  text-decoration: underline;
-  transition: color 0.2s;
-  margin-top: 0.5rem;
-}
-.demo-link:hover {
-  color: var(--accent);
-}
-
-.benefits-card {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-xl);
-  padding: 1.5rem 1.8rem;
-}
-.benefits-title {
-  font-family: var(--syne);
-  font-size: 1.1rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  margin-bottom: 1.2rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.benefits-title::before {
-  content: '✨';
-  font-size: 1.2rem;
-}
-.benefits-grid {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-.benefit-item {
-  display: flex;
-  gap: 1rem;
-  align-items: flex-start;
-}
-.benefit-num {
-  font-family: var(--syne);
-  font-size: 0.9rem;
-  font-weight: 800;
-  background: var(--accent-bg);
-  color: var(--accent);
-  width: 28px;
-  height: 28px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  border-radius: 30px;
-  flex-shrink: 0;
-}
-.benefit-text {
-  flex: 1;
-}
-.benefit-text strong {
-  font-size: 0.9rem;
-  font-weight: 600;
-  display: block;
-  margin-bottom: 0.2rem;
-}
-.benefit-text p {
-  font-size: 0.8rem;
-  color: var(--text2);
-  line-height: 1.5;
-}
-
-@media (max-width: 560px) {
-  .conversion-card, .benefits-card {
-    padding: 1.2rem;
+  /* Each section = one page */
+  .report-section {
+    page-break-before: always; break-before: page;
+    page-break-inside: avoid; break-inside: avoid;
+    margin: 0 !important; padding: 2rem 0 !important;
   }
-}
+  #sec-score { page-break-before: auto; break-before: auto; }
 
-/* ========== LOADING ========== */
-.loading-center {
-  text-align: center;
-}
-.loading-ring {
-  width: 64px;
-  height: 64px;
-  border-radius: 50%;
-  border: 3px solid var(--border2);
-  border-top-color: var(--accent);
-  animation: spin 0.9s linear infinite;
-  margin: 0 auto 1.5rem;
-}
-@keyframes spin { to { transform: rotate(360deg); } }
+  /* Preserve backgrounds and colors exactly as on screen */
+  * { -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
 
-/* ========== REPORT ========== */
-.report-container {
-  max-width: 880px;
-  margin: 0 auto;
-  padding: 1.5rem 1rem 4rem;
-}
-.report-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  flex-wrap: wrap;
-  border-bottom: 1px solid var(--border);
-  padding-bottom: 1rem;
-  margin-bottom: 2rem;
-  gap: 1rem;
-}
-.report-meta h2 {
-  font-family: var(--syne);
-  font-size: 1.5rem;
-  font-weight: 800;
-}
-.url-tag {
-  font-size: 0.8rem;
-  color: var(--accent);
-  word-break: break-word;
-}
-.btn-back {
-  background: transparent;
-  border: 1.5px solid var(--border2);
-  border-radius: var(--radius-sm);
-  padding: 0.5rem 1rem;
-  font-size: 0.75rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.btn-back:hover {
-  border-color: var(--accent);
-  color: var(--accent);
-}
-.score-hero {
-  background: var(--surface);
-  border: 1px solid var(--border2);
-  border-radius: var(--radius-xl);
-  padding: 1.8rem;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 2rem;
-  margin-bottom: 2rem;
-}
-.score-info {
-  flex: 1;
-}
-.score-number {
-  font-family: var(--syne);
-  font-size: 3.2rem;
-  font-weight: 800;
-  color: var(--gold);
-  line-height: 1;
-}
-.score-class {
-  display: inline-block;
-  font-size: 0.7rem;
-  font-weight: 600;
-  padding: 0.25rem 1rem;
-  border-radius: 40px;
-  background: var(--gold-bg);
-  color: var(--gold);
-  margin: 0.5rem 0 0.6rem;
-}
-.score-summary {
-  font-size: 0.9rem;
-  line-height: 1.65;
-  color: var(--text2);
-}
-.report-section {
-  margin-bottom: 2.5rem;
-  scroll-margin-top: 80px;
-}
-.section-timeline-label {
-  font-family: var(--syne);
-  font-size: 0.75rem;
-  font-weight: 700;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--accent);
-  margin-bottom: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-.section-timeline-label::before {
-  content: '';
-  width: 4px;
-  height: 1rem;
-  background: var(--accent);
-  border-radius: 2px;
-}
-.criteria-list {
-  display: flex;
-  flex-direction: column;
-  gap: 0.9rem;
-}
-.criterion {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 1.2rem;
-}
-.crit-header {
-  display: flex;
-  justify-content: space-between;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-  margin-bottom: 0.7rem;
-}
-.meter-track {
-  height: 7px;
-  background: var(--border2);
-  border-radius: 10px;
-  overflow: hidden;
-  margin: 0.8rem 0 0.7rem;
-}
-.meter-fill {
-  height: 100%;
-  width: 0%;
-  transition: width 1s cubic-bezier(0.2, 0.9, 0.4, 1.1);
-}
-.crit-desc {
-  font-size: 0.85rem;
-  line-height: 1.55;
-  color: var(--text2);
-}
-.gap-wrap {
-  overflow-x: auto;
-  border-radius: var(--radius-md);
-  border: 1px solid var(--border);
-}
-.gap-table {
-  width: 100%;
-  border-collapse: collapse;
-  font-size: 0.85rem;
-}
-.gap-table th {
-  text-align: left;
-  padding: 0.8rem;
-  background: var(--card2);
-}
-.gap-table td {
-  padding: 0.8rem;
-  border-top: 1px solid var(--border);
-}
-.slide-pair {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 1rem;
-  margin-bottom: 1rem;
-}
-@media (max-width: 580px) {
-  .slide-pair { grid-template-columns: 1fr; }
-}
-.slide-card {
-  padding: 1rem;
-  border-radius: var(--radius-md);
-  border: 1px solid;
-}
-.slide-card.before {
-  background: rgba(220,38,38,0.04);
-  border-color: rgba(220,38,38,0.25);
-}
-.slide-card.after {
-  background: rgba(46,213,115,0.04);
-  border-color: rgba(46,213,115,0.25);
-}
-.rec-list {
-  display: flex;
-  flex-direction: column;
-  gap: 1rem;
-}
-.rec-card {
-  background: var(--card);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 1.2rem;
-  display: flex;
-  gap: 1rem;
-}
-.rec-num {
-  font-family: var(--syne);
-  font-size: 2rem;
-  font-weight: 800;
-  color: var(--accent);
-  opacity: 0.6;
-  line-height: 1;
-}
-.rec-title {
-  font-size: 0.95rem;
-  font-weight: 700;
-}
-.rec-impact {
-  font-size: 0.75rem;
-  color: var(--accent);
-  margin: 0.3rem 0;
-}
-.cta-section {
-  background: var(--surface);
-  border-radius: var(--radius-xl);
-  padding: 1.8rem;
-  border: 1px solid var(--border2);
-}
-.cta-grid {
-  display: grid;
-  grid-template-columns: repeat(3,1fr);
-  gap: 1rem;
-  margin: 1.2rem 0;
-}
-@media (max-width: 620px) {
-  .cta-grid { grid-template-columns: 1fr; }
-}
-.cta-card {
-  background: var(--card2);
-  border: 1px solid var(--border);
-  border-radius: var(--radius-md);
-  padding: 1.2rem;
-  text-align: center;
-  cursor: pointer;
-  transition: 0.2s;
-}
-.cta-card:hover {
-  transform: translateY(-3px);
-}
-.cta-btn {
-  background: var(--accent-bg);
-  border: none;
-  border-radius: 30px;
-  padding: 0.4rem 0.9rem;
-  font-size: 0.7rem;
-  font-weight: 600;
-  margin-top: 0.7rem;
-  cursor: pointer;
-}
-.tnav-btn {
-  background: transparent;
-  border: 1px solid var(--border);
-  border-radius: 40px;
-  padding: 0.4rem 1rem;
-  font-size: 0.7rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-.tnav-btn.active {
-  background: var(--accent-bg);
-  border-color: var(--accent-bdr);
-  color: var(--accent);
+  /* Score hero */
+  .score-hero { page-break-inside: avoid; break-inside: avoid; }
+
+  /* Speedometer panel — keep dark always (it has hardcoded dark bg) */
+  .score-hero > div:first-child > div { box-shadow: none !important; }
+
+  /* Criteria */
+  .criteria-list, .criterion { page-break-inside: avoid; break-inside: avoid; }
+  .criterion { margin-bottom: .5rem !important; }
+
+  /* Gaps, slides, recs */
+  .gap-wrap, .slide-pair, .rec-card { page-break-inside: avoid; break-inside: avoid; }
+  .slide-pair { margin-bottom: .5rem !important; }
+
+  /* Plan table */
+  #plan-content { display: block !important; }
+  #plan-tbody tr { page-break-inside: avoid; break-inside: avoid; }
+
+  /* CTA section */
+  .cta-btn { display: none !important; }
+
+  /* Page margins */
+  @page { margin: 1.5cm 1.8cm; size: A4; }
+  @page :first { margin-top: 1cm; }
 }
 </style>
 </head>
@@ -839,6 +321,11 @@ input[type="range"] {
 
 <button id="settings-btn" onclick="toggleSettings()" title="Configurações">⚙</button>
 <div id="settings-panel">
+  <!-- Último modelo usado -->
+  <div id="last-model-row" style="display:none;background:var(--accent-bg);border:1px solid var(--accent-bdr);border-radius:var(--radius-sm);padding:.5rem .75rem">
+    <div style="font-size:.6rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted);margin-bottom:.2rem">Último modelo usado</div>
+    <div id="last-model-name" style="font-size:.72rem;font-weight:600;color:var(--accent);word-break:break-all"></div>
+  </div>
   <div class="setting-row">
     <div class="setting-label">Tema</div>
     <div class="theme-toggle">
@@ -852,139 +339,1999 @@ input[type="range"] {
       <div class="setting-value" id="fs-val">16px</div>
     </div>
     <input type="range" id="fs-slider" min="12" max="22" value="16" step="1" oninput="setFontSize(this.value)">
+    <div style="display:flex;justify-content:space-between;font-size:.65rem;color:var(--muted)"><span>A</span><span style="font-size:.85rem">A</span><span style="font-size:1rem">A</span></div>
   </div>
   <div class="setting-row">
-    <div class="setting-label">
-      🔑 API Key Groq
-      <span data-tip="Chave gratuita em console.groq.com/keys" class="tip-icon">?</span>
+    <div class="setting-label" style="margin-bottom:.5rem">🔑 Configuração de IA</div>
+
+    <!-- OpenRouter -->
+    <div style="margin-bottom:.5rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem">
+        <span style="font-size:.72rem;font-weight:600;color:var(--text2)">OpenRouter</span>
+        <a href="https://openrouter.ai/keys" target="_blank" style="font-size:.62rem;color:var(--accent);text-decoration:none;border:1px solid var(--border2);padding:2px 7px;border-radius:6px">↗ Criar chave</a>
+      </div>
+      <input type="password" class="settings-api-input" id="ia-openrouter-key" placeholder="sk-or-..." oninput="iaKit.salvarOpenRouterKey()" autocomplete="off"/>
+      <span class="ia-key-st" id="ia-openrouter-status">—</span>
     </div>
-    <input type="password" id="api-key" placeholder="gsk_..." oninput="saveApiKey(this.value)" autocomplete="off"/>
+
+    <!-- Modelo -->
+    <div style="margin-bottom:.5rem">
+      <div style="font-size:.72rem;font-weight:600;color:var(--text2);margin-bottom:.25rem">Modelo</div>
+      <select id="ia-modelo-select" onchange="iaKit.salvarModelo()" style="width:100%;background:var(--bg);border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:.45rem .65rem;font-size:.76rem;color:var(--text);outline:none;font-family:var(--inter)">
+        <optgroup label="🆓 Gratuitos">
+          <option value="openrouter/free">🔀 Auto — melhor gratuito</option>
+          <option value="deepseek/deepseek-r1:free">DeepSeek R1</option>
+          <option value="deepseek/deepseek-chat-v3-0324:free">DeepSeek V3</option>
+          <option value="meta-llama/llama-3.3-70b-instruct:free">Llama 3.3 70B</option>
+          <option value="qwen/qwen3-235b-a22b:free">Qwen3 235B</option>
+          <option value="mistralai/mistral-small-3.1-24b-instruct:free">Mistral Small 3.1</option>
+        </optgroup>
+        <optgroup label="💳 Pagos">
+          <option value="deepseek/deepseek-chat">DeepSeek V3 (pago)</option>
+          <option value="deepseek/deepseek-r1">DeepSeek R1 (pago)</option>
+          <option value="anthropic/claude-sonnet-4-5">Claude Sonnet 4.5</option>
+          <option value="openai/gpt-4o-mini">GPT-4o Mini</option>
+        </optgroup>
+      </select>
+      <span style="font-size:.6rem;color:var(--muted);margin-top:.2rem;display:block">Gratuitos não precisam de créditos</span>
+    </div>
+
+    <!-- Groq fallback -->
+    <div style="border-top:1px solid var(--border);padding-top:.5rem">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:.25rem">
+        <span style="font-size:.68rem;color:var(--muted)">Groq direto (fallback)</span>
+        <a href="https://console.groq.com/keys" target="_blank" style="font-size:.62rem;color:var(--accent);text-decoration:none;border:1px solid var(--border2);padding:2px 7px;border-radius:6px">↗ Criar chave</a>
+      </div>
+      <input type="password" class="settings-api-input" id="ia-groq-key" placeholder="gsk_..." oninput="iaKit.salvarGroqKey()" autocomplete="off"/>
+      <span class="ia-key-st" id="ia-groq-status">—</span>
+    </div>
+    <div style="font-size:.6rem;color:var(--muted);margin-top:.4rem">Prioridade: OpenRouter → Groq direto</div>
   </div>
-  <!-- campo Webhook removido – agora é fixo no código -->
+  <div class="setting-row" style="border-top:1px solid var(--border);padding-top:.75rem">
+    <div class="setting-label" style="margin-bottom:.5rem">🔖 Captura instantânea</div>
+    <p style="font-size:.7rem;color:var(--muted);line-height:1.55;margin-bottom:.6rem">Arraste o botão para a barra de favoritos. Em qualquer site, clique nele para capturar e analisar.</p>
+    <div style="display:flex;gap:.5rem;align-items:center;flex-wrap:wrap">
+      <a id="bookmarklet-link" href="#"
+        style="background:var(--accent);color:var(--btn-on-accent);border-radius:var(--radius-sm);padding:.4rem .85rem;font-size:.75rem;font-weight:700;text-decoration:none;font-family:var(--syne);cursor:grab;white-space:nowrap;user-select:none"
+        title="ARRASTE para a barra de favoritos">
+        📊 PUV Score
+      </a>
+      <span style="font-size:.68rem;color:var(--muted)">← arraste para favoritos</span>
+    </div>
+    <div id="bm-copy-row" style="display:none;margin-top:.5rem;flex-direction:column;gap:.35rem">
+      <div style="font-size:.68rem;color:var(--warn);font-weight:600">Instalar manualmente:</div>
+      <div style="font-size:.65rem;color:var(--muted);line-height:1.5">1. Crie um favorito no browser<br>2. Cole o código abaixo no campo URL<br>3. Salve como "PUV Score"</div>
+      <div style="display:flex;gap:.35rem">
+        <textarea id="bm-code-area" rows="2" readonly style="flex:1;background:var(--bg);border:1px solid var(--border2);border-radius:var(--radius-sm);padding:.4rem .5rem;font-size:.6rem;color:var(--text2);font-family:monospace;resize:none;outline:none"></textarea>
+        <button onclick="copyBookmarklet()" style="background:var(--accent-bg);border:1px solid var(--accent-bdr);color:var(--accent);border-radius:var(--radius-sm);padding:.3rem .6rem;font-size:.68rem;font-weight:600;cursor:pointer;font-family:var(--inter);white-space:nowrap;align-self:flex-start">Copiar</button>
+      </div>
+    </div>
+  </div>
+  <div class="setting-row" style="border-top:1px solid var(--border);padding-top:.75rem">
+    <div class="setting-label" style="margin-bottom:.5rem">🔐 Admin</div>
+    <div style="display:flex;flex-direction:column;gap:.35rem">
+      <button onclick="adminChangeUrl('site')" style="background:var(--card2);border:1px solid var(--border2);color:var(--text2);border-radius:var(--radius-sm);padding:.4rem .75rem;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--inter);text-align:left">🌐 Alterar URL demo Site</button>
+      <button onclick="adminChangeUrl('instagram')" style="background:var(--card2);border:1px solid var(--border2);color:var(--text2);border-radius:var(--radius-sm);padding:.4rem .75rem;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--inter);text-align:left">📸 Alterar URL demo Instagram</button>
+      <button onclick="adminChangeUrl('youtube')" style="background:var(--card2);border:1px solid var(--border2);color:var(--text2);border-radius:var(--radius-sm);padding:.4rem .75rem;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--inter);text-align:left"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" style="display:inline;vertical-align:middle;margin-right:4px"><rect x="2" y="5" width="20" height="14" rx="4" stroke="currentColor" stroke-width="2"/><path d="M10 9.5l5 2.5-5 2.5V9.5z" fill="currentColor"/></svg> Alterar URL demo YouTube</button>
+    </div>
+  </div>
 </div>
 
-<!-- INPUT SCREEN - SINGLE COLUMN HIGH CONVERSION -->
-<div class="screen active" id="screen-input" style="display:flex">
+<!-- INPUT SCREEN -->
+<div class="screen active" id="screen-input">
   <div class="input-container">
+
+    <!-- CARD PRINCIPAL -->
     <div class="conversion-card">
       <div class="version-bar">
-        <div class="logo-badge"><span class="logo-text">PUV SCORE</span></div>
-        <span class="version-tag">v0.3 · leads na sua planilha</span>
+        <div style="display:flex;align-items:center;gap:.75rem">
+          <img src="https://d1yei2z3i6k35z.cloudfront.net/3119789/69971d1031628_FNWNEWLogo_26.png" 
+               alt="FNW Logo" width="40" height="40" 
+               style="border-radius:10px;display:block;flex-shrink:0"/>
+          <div>
+            <div style="font-family:var(--syne);font-size:.82rem;font-weight:800;letter-spacing:.08em;color:var(--accent)">PUV SCORE</div>
+            <div style="font-size:.62rem;color:var(--muted);letter-spacing:.04em;margin-top:.05rem">FNW Advisory &amp; Partners</div>
+          </div>
+        </div>
+        <span class="version-tag">v0.1.2.4</span>
       </div>
-      <h1 class="input-h1">Análise <em>Estratégica</em><br>para Agências.</h1>
-      <p class="input-subtitle">Cole a URL. Nossa IA analisa, pontua e entrega um relatório completo com plano de ação priorizado.</p>
-      
+      <!-- HERO: 2 colunas — esquerda texto, direita velocímetro -->
+      <div style="display:grid;grid-template-columns:1fr auto;gap:1.25rem;align-items:center;margin-bottom:1.5rem">
+        <div>
+          <h1 class="input-h1" style="margin-bottom:.6rem">
+            Análise <em>Estratégica</em><br>para Agências.
+          </h1>
+          <p style="font-size:.88rem;color:var(--text2);line-height:1.7;font-style:italic">
+            Descubra se a narrativa do produto ou serviço conversa com a necessidade real do cliente ou consumidor.
+          </p>
+        </div>
+        <!-- MINI SPEEDOMETER -->
+        <div class="hero-speedo-col" style="flex-shrink:0">
+          <div style="background:linear-gradient(160deg,#080c18 0%,#0d1424 100%);border-radius:16px;padding:.85rem 1rem;box-shadow:0 8px 32px rgba(0,0,0,.5),inset 0 1px 0 rgba(255,255,255,.06)">
+            <svg id="hero-speedo" viewBox="0 0 260 165" style="width:170px;display:block;overflow:visible">
+              <defs>
+                <filter id="hng"><feGaussianBlur stdDeviation="2" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+                <filter id="hsg"><feGaussianBlur stdDeviation="5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+              </defs>
+              <path id="hbg1" fill="rgba(255,255,255,0.05)"/>
+              <path id="hbg2" fill="rgba(255,255,255,0.05)"/>
+              <path id="hbg3" fill="rgba(255,255,255,0.05)"/>
+              <path id="hbg4" fill="rgba(255,255,255,0.05)"/>
+              <path id="hbg5" fill="rgba(255,255,255,0.05)"/>
+              <path id="harc1" opacity="0.9"/>
+              <path id="harc2" opacity="0.9"/>
+              <path id="harc3" opacity="0.9"/>
+              <path id="harc4" opacity="0.9"/>
+              <path id="harc5" opacity="0.9"/>
+              <g id="hero-ticks"/>
+              <line id="hero-shadow" stroke="rgba(0,0,0,0.5)" stroke-width="4" stroke-linecap="round"/>
+              <line id="hero-needle" stroke="white" stroke-width="2.2" stroke-linecap="round" filter="url(#hng)"/>
+              <circle id="hero-hub" r="9" fill="#080c18" stroke="rgba(255,255,255,0.15)" stroke-width="1.2"/>
+              <circle id="hero-dot" r="4"/>
+              <text id="hero-score" text-anchor="middle" dominant-baseline="central" font-family="Barlow Condensed,sans-serif" font-size="32" font-weight="800" filter="url(#hsg)">—</text>
+              <text id="hero-pts" text-anchor="middle" font-family="Inter,sans-serif" font-size="8" fill="rgba(255,255,255,0.3)">/ 100 pontos</text>
+            </svg>
+          </div>
+        </div>
+      </div>
       <div class="type-label">O que analisar?</div>
       <div class="type-grid">
         <button class="type-btn active" id="type-site" onclick="selectType('site')"><span class="type-icon">🌐</span><span class="type-name">Site</span></button>
-        <button class="type-btn" id="type-instagram" onclick="selectType('instagram')"><span class="type-icon">📸</span><span class="type-name">Instagram</span></button>
-        <button class="type-btn coming-soon"><span class="type-icon">🎬</span><span class="type-name">YouTube</span><span class="type-soon">breve</span></button>
-        <button class="type-btn coming-soon"><span class="type-icon">📢</span><span class="type-name">Anúncio</span><span class="type-soon">breve</span></button>
-        <button class="type-btn coming-soon"><span class="type-icon">💼</span><span class="type-name">LinkedIn</span><span class="type-soon">breve</span></button>
-        <button class="type-btn coming-soon"><span class="type-icon">🛒</span><span class="type-name">E‑commerce</span><span class="type-soon">breve</span></button>
+        <button class="type-btn" id="type-instagram" onclick="selectType('instagram')"><span class="type-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5.5" stroke="currentColor" stroke-width="1.8"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.8"/><circle cx="17.5" cy="6.5" r="1" fill="currentColor"/></svg></span><span class="type-name">Instagram</span></button>
+        <button class="type-btn" id="type-youtube" onclick="selectType('youtube')"><span class="type-icon"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="5" width="20" height="14" rx="4" stroke="currentColor" stroke-width="1.8"/><path d="M10 9.5l5 2.5-5 2.5V9.5z" fill="currentColor"/></svg></span><span class="type-name">YouTube</span></button>
+        <button class="type-btn coming-soon"><span class="type-icon">📢</span><span class="type-name">Anúncio</span><span class="type-soon">em breve</span></button>
+        <button class="type-btn coming-soon"><span class="type-icon">💼</span><span class="type-name">LinkedIn</span><span class="type-soon">em breve</span></button>
+        <button class="type-btn coming-soon"><span class="type-icon">🛒</span><span class="type-name">E‑commerce</span><span class="type-soon">em breve</span></button>
       </div>
-      
+
+      <!-- Ver demonstração — antes da URL -->
+      <div style="text-align:center;margin:.25rem 0 .75rem">
+        <button onclick="loadDemo()" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--card2);border:1px solid var(--border2);color:var(--text2);border-radius:30px;padding:.45rem 1.1rem;font-size:.78rem;font-weight:600;cursor:pointer;font-family:var(--inter);transition:all .2s"
+          onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+          onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">
+          ▶ Ver demonstração
+        </button>
+      </div>
+
       <div class="url-field">
-        <input class="url-input" id="url-input" placeholder="https://seusite.com.br" autocomplete="off"/>
-        <button class="btn-primary" id="btn-analyze" onclick="startAnalysis()">Analisar →</button>
+        <input class="url-input" id="url-input" type="url" placeholder="https://seusite.com.br" autocomplete="off"/>
       </div>
-      <p class="api-hint">🔑 API Key em <button onclick="toggleSettings()" style="background:none; border:none; color:var(--accent); font-size:0.68rem; cursor:pointer;">⚙ Configurações</button></p>
-      
+      <p class="api-hint">🔑 API Key em <button class="api-hint-btn" onclick="toggleSettings()">⚙ Configurações</button></p>
+
       <div class="lead-form">
         <div class="lead-header">📋 Receba o relatório completo por WhatsApp</div>
         <div class="lead-row">
-          <input class="lead-input" id="lead-name" placeholder="Seu nome" autocomplete="name"/>
-          <input class="lead-input" id="lead-email" placeholder="seu@email.com" autocomplete="email"/>
+          <input class="lead-input" id="lead-name" type="text" placeholder="Seu nome" autocomplete="name"/>
+          <input class="lead-input" id="lead-email" type="email" placeholder="seu@email.com" autocomplete="email"/>
         </div>
-        <div class="lead-row" style="margin-top:0.4rem">
-          <input class="lead-input" id="lead-company" placeholder="Empresa (opcional)"/>
+        <div class="lead-row" style="margin-top:.4rem">
+          <input class="lead-input" id="lead-company" type="text" placeholder="Empresa (opcional)" autocomplete="organization"/>
         </div>
-        <p class="lead-note">Sem spam. Dados usados apenas para envio do diagnóstico e contato comercial.</p>
+        <p class="lead-note">Sem spam. Dados usados apenas para envio do relatório e contato comercial.</p>
       </div>
-      
+
       <div id="error-msg" class="error-msg"></div>
-      <button class="demo-link" onclick="loadDemo()">▶ Ver demonstração</button>
+
+      <!-- CTA principal centralizado — AIDA: Ação -->
+      <div style="text-align:center;margin-top:.5rem">
+        <button class="btn-primary" id="btn-analyze" onclick="startAnalysis()"
+          style="padding:.85rem 2.5rem;font-size:.95rem;border-radius:var(--radius-md)">
+          Analisar agora →
+        </button>
+      </div>
+
+      <!-- CAPTURED CONTENT BANNER -->
+      <div id="captured-banner" style="display:none;margin-top:.75rem;background:rgba(0,224,255,.06);border:1.5px solid var(--accent-bdr);border-radius:var(--radius-md);padding:.75rem 1rem;display:none;align-items:center;gap:.75rem">
+        <span style="font-size:1.1rem">✅</span>
+        <div style="flex:1">
+          <div style="font-size:.8rem;font-weight:600;color:var(--accent)">Conteúdo capturado via bookmarklet</div>
+          <div id="captured-url-label" style="font-size:.72rem;color:var(--muted)"></div>
+        </div>
+        <button onclick="clearCaptured()" style="background:none;border:none;color:var(--muted);font-size:.75rem;cursor:pointer;font-family:var(--inter)">✕ Limpar</button>
+      </div>
     </div>
-    
+
+    <!-- BENEFITS CARD (timeline) -->
     <div class="benefits-card">
       <div class="benefits-title">O que você vai receber</div>
       <div class="benefits-grid">
         <div class="benefit-item"><div class="benefit-num">1</div><div class="benefit-text"><strong>Score Global 0–100</strong><p>Velocímetro visual com classificação do posicionamento atual.</p></div></div>
-        <div class="benefit-item"><div class="benefit-num">2</div><div class="benefit-text"><strong>5 Métricas PUV</strong><p>Clareza de valor, funil, prova social, nicho e friction — cada uma com diagnóstico.</p></div></div>
-        <div class="benefit-item"><div class="benefit-num">3</div><div class="benefit-text"><strong>Gaps identificados</strong><p>Comparação: o que comunica hoje vs. o que deveria comunicar.</p></div></div>
-        <div class="benefit-item"><div class="benefit-num">4</div><div class="benefit-text"><strong>Antes & Depois</strong><p>Slides comparativos de elementos críticos (CTA, prova social, autoridade).</p></div></div>
-        <div class="benefit-item"><div class="benefit-num">5</div><div class="benefit-text"><strong>3 Recomendações prioritárias</strong><p>Ações ordenadas por impacto, com descrição executiva.</p></div></div>
-        <div class="benefit-item"><div class="benefit-num">6</div><div class="benefit-text"><strong>PDF + contato especializado</strong><p>Relatório diagramado entregue via WhatsApp após solicitação.</p></div></div>
+        <div class="benefit-item"><div class="benefit-num">2</div><div class="benefit-text"><strong>5 Métricas PUV</strong><p>Clareza de valor, funil, prova social, nicho e friction — cada uma com diagnóstico e label.</p></div></div>
+        <div class="benefit-item"><div class="benefit-num">3</div><div class="benefit-text"><strong>Gaps identificados</strong><p>O que comunica hoje vs. o que deveria comunicar — tabela comparativa.</p></div></div>
+        <div class="benefit-item"><div class="benefit-num">4</div><div class="benefit-text"><strong>Antes &amp; Depois</strong><p>5 slides comparativos de elementos críticos com versão otimizada.</p></div></div>
+        <div class="benefit-item"><div class="benefit-num">5</div><div class="benefit-text"><strong>3 Recomendações prioritárias</strong><p>Ações ordenadas por impacto com descrição executiva detalhada.</p></div></div>
+        <div class="benefit-item"><div class="benefit-num">6</div><div class="benefit-text"><strong>PDF completo via WhatsApp</strong><p>Relatório diagramado entregue após solicitação — opções A, B ou C.</p></div></div>
       </div>
     </div>
+
+    <!-- ACORDEÃO — METODOLOGIA -->
+    <div style="border:1px solid var(--border);border-radius:var(--radius-md);overflow:hidden;margin-bottom:0">
+      <button onclick="toggleAccordion()" id="accordion-btn"
+        style="width:100%;display:flex;align-items:center;justify-content:space-between;padding:.85rem 1.1rem;background:var(--card2);border:none;cursor:pointer;font-family:var(--inter);gap:.5rem">
+        <span style="font-size:.82rem;font-weight:600;color:var(--text2)">📖 Saiba mais — como funciona a metodologia</span>
+        <span id="accordion-icon" style="color:var(--muted);font-size:1rem;transition:transform .3s">▾</span>
+      </button>
+      <div id="accordion-body" style="display:none;padding:1rem 1.1rem;border-top:1px solid var(--border)">
+        <div style="font-size:.78rem;color:var(--text2);line-height:1.75">
+          O <strong style="color:var(--text)">PUV Score</strong> é um índice de posicionamento digital que avalia qualquer presença online em 5 dimensões estratégicas — pontuando de 0 a 100 com base em âncoras objetivas calibradas pelo
+          <a href="https://www.nngroup.com" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:600">Nielsen Norman Group</a> e pelo
+          <a href="https://cxl.com" target="_blank" style="color:var(--accent);text-decoration:none;font-weight:600">CXL Institute</a>.
+          O resultado é um diagnóstico acionável com gaps, slides comparativos e recomendações priorizadas por impacto — gerado por IA e validável via <strong style="color:var(--gold)">PUV Audit</strong> com revisão humana especializada.
+        </div>
+        <div style="margin-top:.75rem;display:flex;align-items:center;gap:.5rem;flex-wrap:wrap">
+          <span style="font-size:.65rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;color:var(--muted)">Framework:</span>
+          <span style="font-size:.68rem;color:var(--text2);font-weight:500">High-End Digital Positioning Framework (HEDPF)</span>
+          <span style="font-size:.65rem;color:var(--muted)">·</span>
+          <span style="font-size:.68rem;color:var(--accent);font-weight:600">FNW Advisory &amp; Partners</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- PRICING CARD -->
+    <div class="pricing-card-wrap">
+      <div class="pricing-title">Investimento</div>
+      <div class="pricing-grid">
+        <div class="pricing-card avulso">
+          <div class="pricing-tag">Análise avulsa</div>
+          <div class="pricing-value">R$ 480</div>
+          <div class="pricing-desc">Por análise. Resultado online + PDF completo via WhatsApp.</div>
+          <button class="pricing-btn avulso-btn" onclick="requestPDF('proprio')">Solicitar agora →</button>
+        </div>
+        <div class="pricing-card mensal">
+          <div class="pricing-tag">Plano mensal</div>
+          <div class="pricing-value">R$ 1.540<span style="font-size:.65em;font-weight:400">/mês</span></div>
+          <div class="pricing-desc">Volume de análises + suporte dedicado. Consulte condições.</div>
+          <button class="pricing-btn mensal-btn" onclick="requestPDF('assessoria')">Consultar plano →</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- FOOTER -->
+    <div class="input-footer">
+      <button onclick="loadDemo()" style="display:inline-flex;align-items:center;gap:.5rem;background:var(--card2);border:1px solid var(--border2);color:var(--text2);border-radius:30px;padding:.45rem 1.1rem;font-size:.78rem;font-weight:600;cursor:pointer;font-family:var(--inter);margin-bottom:.75rem;transition:all .2s"
+        onmouseover="this.style.borderColor='var(--accent)';this.style.color='var(--accent)'"
+        onmouseout="this.style.borderColor='var(--border2)';this.style.color='var(--text2)'">
+        ▶ Ver demonstração
+      </button>
+      <div style="display:inline-flex;align-items:center;gap:.5rem">
+        <img src="https://d1yei2z3i6k35z.cloudfront.net/3119789/69971d1031628_FNWNEWLogo_26.png"
+             alt="FNW" width="18" height="18" style="border-radius:4px;opacity:.6;display:block"/>
+        <span>Developed by <span>FNW Advisory &amp; Partners</span></span>
+      </div>
+    </div>
+
   </div>
 </div>
 
-<div class="screen" id="screen-loading"><div class="loading-center"><div class="loading-ring"></div><div class="loading-title">Analisando...</div><p class="loading-step" id="loading-step">Lendo o conteúdo da URL</p></div></div>
-<div class="screen" id="screen-report"><div class="report-container" id="report-content"></div></div>
+<!-- DEMO CHOICE SCREEN -->
+<div class="screen" id="screen-demo-choice">
+  <div style="max-width:480px;width:100%;margin:0 auto;padding:2rem 1.5rem;display:flex;flex-direction:column;align-items:center;text-align:center;gap:1.5rem">
+    <div class="logo-badge"><div class="logo-dot"></div><span class="logo-text">PUV SCORE · DEMO</span></div>
+    <div>
+      <h2 style="font-family:var(--syne);font-size:1.5rem;font-weight:800;margin-bottom:.5rem">Escolha o tipo de análise</h2>
+      <p style="font-size:.88rem;color:var(--muted);line-height:1.6">Selecione o objeto para ver um exemplo real de relatório PUV Score.</p>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:1rem;width:100%">
+      <!-- Site -->
+      <div onclick="startDemo('site')" style="background:var(--card);border:1.5px solid var(--border2);border-radius:var(--radius-lg);padding:1.25rem .75rem;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:.6rem"
+        onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='var(--border2)';this.style.transform=''">
+        <span style="font-size:2rem">🌐</span>
+        <div style="text-align:center">
+          <div style="font-family:var(--syne);font-size:.95rem;font-weight:700;margin-bottom:.2rem">Site</div>
+          <div style="font-size:.68rem;color:var(--muted);line-height:1.4">Landing page SaaS</div>
+        </div>
+        <div id="demo-label-site" style="font-size:.62rem;color:var(--accent);font-weight:600;background:var(--accent-bg);padding:.2rem .6rem;border-radius:30px;text-align:center">puv-score.vercel.app</div>
+      </div>
+      <!-- Instagram -->
+      <div onclick="startDemo('instagram')" style="background:var(--card);border:1.5px solid var(--border2);border-radius:var(--radius-lg);padding:1.25rem .75rem;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:.6rem"
+        onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='var(--border2)';this.style.transform=''">
+        <span style="font-size:2rem;line-height:1;color:var(--text2)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="2" width="20" height="20" rx="5.5" stroke="currentColor" stroke-width="1.5"/><circle cx="12" cy="12" r="4.5" stroke="currentColor" stroke-width="1.5"/><circle cx="17.5" cy="6.5" r="1.1" fill="currentColor"/></svg></span>
+        <div style="text-align:center">
+          <div style="font-family:var(--syne);font-size:.95rem;font-weight:700;margin-bottom:.2rem">Instagram</div>
+          <div style="font-size:.68rem;color:var(--muted);line-height:1.4">Perfil analisado</div>
+        </div>
+        <div id="demo-label-instagram" style="font-size:.62rem;color:var(--accent);font-weight:600;background:var(--accent-bg);padding:.2rem .6rem;border-radius:30px;text-align:center">@bio.tq</div>
+      </div>
+      <!-- YouTube -->
+      <div onclick="startDemo('youtube')" style="background:var(--card);border:1.5px solid var(--border2);border-radius:var(--radius-lg);padding:1.25rem .75rem;cursor:pointer;transition:all .2s;display:flex;flex-direction:column;align-items:center;gap:.6rem"
+        onmouseover="this.style.borderColor='var(--accent)';this.style.transform='translateY(-2px)'"
+        onmouseout="this.style.borderColor='var(--border2)';this.style.transform=''">
+        <span style="font-size:2rem;line-height:1;color:var(--text2)"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><rect x="2" y="5" width="20" height="14" rx="4" stroke="currentColor" stroke-width="1.5"/><path d="M10 9.5l5 2.5-5 2.5V9.5z" fill="currentColor"/></svg></span>
+        <div style="text-align:center">
+          <div style="font-family:var(--syne);font-size:.95rem;font-weight:700;margin-bottom:.2rem">YouTube</div>
+          <div style="font-size:.68rem;color:var(--muted);line-height:1.4">Canal analisado</div>
+        </div>
+        <div id="demo-label-youtube" style="font-size:.62rem;color:var(--accent);font-weight:600;background:var(--accent-bg);padding:.2rem .6rem;border-radius:30px;text-align:center">Análise real via IA</div>
+      </div>
+    </div>
+    <button onclick="goBack()" style="background:none;border:none;color:var(--muted);font-size:.78rem;cursor:pointer;font-family:var(--inter);text-decoration:underline">← Voltar</button>
+  </div>
+</div>
+
+<!-- LOADING -->
+<div class="screen" id="screen-loading">
+  <div class="loading-center">
+    <div class="loading-ring"></div>
+    <div class="loading-title">Analisando...</div>
+    <p class="loading-step" id="loading-step">Lendo o conteúdo da URL</p>
+  </div>
+</div>
+
+<!-- REPORT -->
+<div class="screen" id="screen-report">
+  <div class="report-container" id="report-content"></div>
+</div>
 
 <script>
-// ========== WEBHOOK FIXO (SUA PLANILHA) ==========
 const WEBHOOK_URL = 'https://script.google.com/macros/s/AKfycby04929F5XDrbqFoJogx6VTt3Ku09E5hVC2OFIY09lN_DdM5JFpQGAautsHiTe44RrW/exec';
 
-// ========== DEMO DATA ==========
-const DEMO = { url:'https://puv-score.vercel.app', benchmark:'HEDPF · Diagnóstico Digital', total:58, classification:'Atenção — Oportunidade de Conversão', summary:'Landing page tem estrutura sólida, gap principal está na camada de conversão.', criteria:[{name:'Clareza da Proposta de Valor',score:15,max:20,tip:'Entendimento em <5 segundos',desc:'Headline de dor, falta subtítulo de resultado.'},{name:'Arquitetura de Funil / CTA',score:10,max:20,tip:'Jornada guiada',desc:'CTA única com 5 campos, alta fricção.'},{name:'Prova Social',score:12,max:20,tip:'Depoimentos e números',desc:'Números sem fonte, falta ancoragem.'},{name:'Posicionamento de Nicho',score:13,max:20,tip:'Público e diferencial',desc:'Nicho claro, diferencial vs concorrente ausente.'},{name:'Friction de Conversão',score:8,max:20,tip:'Esforço do usuário',desc:'Formulário longo na primeira interação.'}], gaps:[['CTA signup com 5 campos','Micro-CTA só email'],['2.500+ diagnósticos sem fonte','Citando pesquisa Maio/2025'],['Free com destaque para limitações','Diagnóstico Gratuito com foco no que inclui'],['Planos sem urgência','Escassez por CNPJ'],['Sem autoridade metodológica','Credencial + equipe PUV Score']], slides:[{num:'01',elem:'Hero CTA',before:'Botão único signup 5 campos',after:'CTA dupla: só email + entrega 48h'},{num:'02',elem:'Subtítulo',before:'Ausente',after:'Resultado concreto'},{num:'03',elem:'Prova Social',before:'Números soltos',after:'Fonte e data'},{num:'04',elem:'Free Plan',before:'Foco nas limitações',after:'Valor entregue em destaque'},{num:'05',elem:'Autoridade',before:'Nenhuma informação',after:'Credencial metodológica'}], recommendations:[{n:'01',priority:'Prioridade Máxima',title:'Substituir CTA de Signup',impact:'+2x conversão',desc:'Diminua fricção inicial.'},{n:'02',priority:'Alta',title:'Âncora de autoridade',impact:'+credibilidade',desc:'Mostre quem criou o framework.'},{n:'03',priority:'Alta',title:'Urgência contextual',impact:'+decisão',desc:'Gatilho de competitividade antes do preço.'}] };
+// ── ADMIN CONFIG (senha: 1234A$) ──────────────────────────────────────────────
+const ADMIN_PWD = '1234A$';
+let demoUrls = {
+  site:      localStorage.getItem('demo-url-site')      || 'https://puv-score.vercel.app',
+  instagram: localStorage.getItem('demo-url-instagram') || 'https://instagram.com/bio.tq',
+  youtube:   localStorage.getItem('demo-url-youtube')   || 'https://youtube.com/@google',
+};
+function updateDemoLabels(){
+  const siteEl = document.getElementById('demo-label-site');
+  const igEl   = document.getElementById('demo-label-instagram');
+  const ytEl   = document.getElementById('demo-label-youtube');
+  if(siteEl) siteEl.textContent = demoUrls.site.replace(/https?:\/\//,'');
+  if(igEl)   igEl.textContent   = demoUrls.instagram.replace(/https?:\/\//,'');
+  if(ytEl)   ytEl.textContent   = demoUrls.youtube.replace(/https?:\/\//,'');
+}
 
-// ========== UTILITÁRIOS ==========
-let currentStepInterval = null, globalObserver = null;
+function adminChangeUrl(type){
+  if(!type || !['site','instagram','youtube'].includes(type)){
+    type = prompt('Qual URL alterar? Digite: site, instagram ou youtube');
+    if(!type) return;
+    type = type.trim().toLowerCase();
+  }
+  const pwd = prompt('🔐 Senha admin:');
+  if(pwd !== ADMIN_PWD){ alert('Senha incorreta.'); return; }
+  const newUrl = prompt(`Nova URL demo (${type}):`, demoUrls[type]);
+  if(newUrl && newUrl.trim()){
+    demoUrls[type] = newUrl.trim();
+    localStorage.setItem(`demo-url-${type}`, newUrl.trim());
+    if(type === 'instagram') DEMO_INSTAGRAM.url = newUrl.trim();
+    if(type === 'site') DEMO_SITE.url = newUrl.trim();
+    updateDemoLabels();
+    alert(`✅ URL demo ${type} atualizada para:\n${newUrl.trim()}`);
+  }
+}
 
-function toggleSettings(){ document.getElementById('settings-panel').classList.toggle('open'); }
-document.addEventListener('click', e => { let panel=document.getElementById('settings-panel'),btn=document.getElementById('settings-btn'); if(panel && !panel.contains(e.target) && e.target!==btn) panel.classList.remove('open'); });
+const DEMO_SITE = {
+  url:'https://puv-score.vercel.app',
+  benchmark:'High-End Digital Positioning Framework (HEDPF) · SaaS / Diagnóstico Digital',
+  total:58,
+  classification:'Atenção — Oportunidade de Conversão Não Capturada',
+  summary:'A landing page puv-score.vercel.app tem estrutura sólida e headline de dor clara. O gap principal está na camada de conversão: CTA direto ao signup com alta fricção, ausência de autoridade metodológica e prova social sem ancoragem contextual.',
+  criteria:[
+    {name:'Clareza da Proposta de Valor',score:15,max:20,tip:'Avalia se o visitante entende em <5s o que o produto faz e qual resultado obterá.',desc:'Headline de dor funcional e demo visual no hero. Falta subtítulo de resultado concreto e resposta ao "o que acontece quando clico".'},
+    {name:'Arquitetura de Funil / CTA',score:10,max:20,tip:'Analisa se há jornada guiada do visitante frio até a conversão.',desc:'CTA única → signup com 5 campos. Alta fricção para visitante frio. Ausência de micro-conversão intermediária.'},
+    {name:'Prova Social e Credibilidade',score:12,max:20,tip:'Verifica depoimentos, números validados e âncoras de autoridade.',desc:'Números presentes mas sem fonte ou data. Nenhuma âncora de autoridade metodológica.'},
+    {name:'Posicionamento de Nicho',score:13,max:20,tip:'Clareza do público-alvo e diferencial vs. concorrentes.',desc:'Nicho claro (PMEs brasileiras). Falta comunicar diferencial vs. ferramentas gratuitas.'},
+    {name:'Friction de Conversão',score:8,max:20,tip:'Mede o esforço exigido do usuário para avançar.',desc:'Formulário de 5 campos na primeira interação. Free plan com foco nas limitações.'},
+  ],
+  gaps:[
+    ['CTA signup com 5 campos (alta fricção)','Micro-CTA: só email + promessa em 48h'],
+    ['2.500+ diagnósticos sem fonte','Baseado em 847 clientes · Maio 2025'],
+    ['Free com ✕ PDF e ✕ Plano em destaque','Diagnóstico Gratuito — foco no que inclui'],
+    ['Planos sem urgência contextual','Escassez: exclusivo por CNPJ'],
+    ['Nenhuma autoridade metodológica','Credencial + equipe + anos de experiência'],
+  ],
+  slides:[
+    {num:'01',elem:'Hero CTA Principal',before:'Botão único → signup 5 campos. Alta fricção para visitante frio.',after:'CTA dupla: primária coleta só email + entrega em 48h. Signup após engajamento.'},
+    {num:'02',elem:'Subtítulo do Hero',before:'[Ausente] — Headline vai direto ao CTA.',after:'"Em 48h: relatório completo + plano de ação — sem instalar nada."'},
+    {num:'03',elem:'Prova Social — Números',before:'"2.500+ Diagnósticos · 87% Melhora · 4.8★" sem fonte.',after:'Microtexto: "Baseado em 847 clientes · Maio 2025" + logos de parceiros.'},
+    {num:'04',elem:'Plano Free — Posicionamento',before:'Foco nas limitações: ✕ PDF, ✕ Plano de ação.',after:'"Diagnóstico Gratuito" — foco no que inclui. Limitações em tooltip.'},
+    {num:'05',elem:'Autoridade Metodológica',before:'[Ausente] — Nenhuma informação sobre quem criou o PUV Score.',after:'Linha de credencial + equipe + logos de mídia ou parceiros.'},
+  ],
+  recommendations:[
+    {n:'01',priority:'Prioridade Máxima',title:'Substituir CTA de Signup por Captura de Email no Hero',impact:'+CTA suave, -friction, +conversão estimada ~2×',desc:'O visitante frio encontra 5 campos obrigatórios — compromisso alto demais. A troca: CTA coleta só o email e promete resultado em 48h. O signup acontece depois, com o lead já engajado.'},
+    {n:'02',priority:'Alta Prioridade',title:'Inserir Âncora de Autoridade Metodológica Acima do Fold',impact:'+credibilidade, +confiança, -objeção de legitimidade',desc:'A página não responde "quem criou isso e por que confiar?". Uma linha de credencial abaixo da headline elimina a principal objeção silenciosa do visitante.'},
+    {n:'03',priority:'Alta Prioridade',title:'Criar Urgência Contextual Antes do Pricing',impact:'+decisão de compra, +ARPU Pro, +velocidade',desc:'A transição de depoimentos para preços é abrupta. Um bloco de urgência — "relatório exclusivo por CNPJ" — ativa o gatilho de competitividade antes da tabela de preços.'},
+  ]
+};
 
-function setTheme(t){ document.documentElement.setAttribute('data-theme', t); localStorage.setItem('puv-theme', t); document.getElementById('btn-dark')?.classList.toggle('active', t==='dark'); document.getElementById('btn-light')?.classList.toggle('active', t==='light'); }
-function setFontSize(v){ document.documentElement.style.setProperty('--fs-base', v+'px'); if(document.getElementById('fs-val')) document.getElementById('fs-val').innerText = v+'px'; localStorage.setItem('puv-fs', v); }
-(function(){ let t=localStorage.getItem('puv-theme')||'dark', fs=localStorage.getItem('puv-fs')||'16'; setTheme(t); setFontSize(fs); })();
+const DEMO_INSTAGRAM = {
+  url:'https://instagram.com/bio.tq',
+  benchmark:'High-End Digital Positioning Framework (HEDPF) · Saúde Integrativa & Wellness Premium',
+  total:49,
+  classification:'Atenção — Oportunidade Crítica de Otimização',
+  summary:'O perfil @bio.tq da BioTQ opera no segmento de biofísica e terapias quânticas. A bio atual lista procedimentos técnicos (Rife, Detox, Desparasitação) sem traduzir em benefício emocional ou resultado concreto para o cliente. O gap central é de narrativa: a bio fala a língua do terapeuta, não do paciente.',
+  criteria:[
+    {name:'Clareza da Proposta de Valor',score:10,max:20,tip:'Visitante entende o benefício em menos de 5 segundos?',desc:'A bio abre com "🧬 Biofísica Terapias Quânticas - BioTQ ⚛️ Terapias Frequenciais Rife" — linguagem técnica inacessível para o cliente não especialista. Não há benefício explícito.'},
+    {name:'Arquitetura de Funil / CTA',score:7,max:20,tip:'Há chamada para ação clara e próximo passo definido?',desc:'Ausência completa de CTA. O visitante não sabe se deve enviar mensagem, agendar ou clicar em link. Nenhum link na bio direciona para agendamento ou contato.'},
+    {name:'Prova Social e Credibilidade',score:8,max:20,tip:'Há depoimentos, números ou autoridade visível?',desc:'Nenhuma menção a número de clientes, depoimentos em destaque, certificações ou resultados mensuráveis visíveis no perfil com 35K seguidores.'},
+    {name:'Posicionamento de Nicho',score:13,max:20,tip:'Nicho específico e diferencial declarado?',desc:'Há um nicho identificável (biofísica + frequências Rife), mas o posicionamento é técnico-genérico, sem diferencial competitivo explícito frente a outras clínicas de terapias alternativas.'},
+    {name:'Friction de Conversão',score:11,max:20,tip:'Qual o esforço do seguidor para se tornar cliente?',desc:'Emojis misturados sem hierarquia visual. Sem link de agendamento direto. O seguidor precisa descobrir por conta própria como contratar — alta fricção para conversão.'},
+  ],
+  gaps:[
+    ['🧬 Biofísica Terapias Quânticas - BioTQ','🧬 Recupere sua saúde com biofísica quântica'],
+    ['Terapias Frequenciais Rife (técnico)','Recupere energia e vitalidade com tecnologia não-invasiva'],
+    ['Limpeza Terreno Biológico (jargão)','Elimine o que intoxica seu corpo — sinta a diferença'],
+    ['Sem CTA na bio','👉 Agende sua avaliação gratuita ↓'],
+    ['Sem prova social visível','✅ +500 atendimentos · ⭐ Depoimentos em destaque'],
+  ],
+  slides:[
+    {num:'01',elem:'Bio do Perfil',before:'🧬 Biofísica Terapias Quânticas - BioTQ ⚛️ Terapias Frequenciais Rife ✴️ Limpeza Terreno Biológico, Detox Metais Tóxicos, Desparasitação, Detox Órgãos',after:'🧬 Recupere sua saúde com biofísica quântica\n⚡ Frequências Rife · Detox Profundo · Equilíbrio Celular\n✅ +500 pessoas já transformaram sua saúde\n👉 Agende sua avaliação gratuita ↓'},
+    {num:'02',elem:'Nome de Exibição',before:'BioTQ',after:'BioTQ · Saúde Quântica e Biofísica'},
+    {num:'03',elem:'Call to Action',before:'[Ausente — nenhuma instrução de próximo passo]',after:'👉 Agende sua avaliação gratuita | 🔗 Link para agendamento/WhatsApp'},
+    {num:'04',elem:'Prova Social',before:'[Ausente na bio]',after:'✅ +500 atendimentos realizados | ⭐ Depoimentos em destaque nos Stories'},
+    {num:'05',elem:'Estrutura de Destaques',before:'Organização genérica ou ausente. Sem narrativa de funil.',after:'① Como Funciona ② Resultados ③ Quem Somos ④ FAQ ⑤ Agendamento'},
+  ],
+  recommendations:[
+    {n:'01',priority:'Prioridade Máxima',title:'Reescrever a Bio com Narrativa Orientada a Resultado',impact:'+CTA, +Clareza de Proposta, +Conversão de Seguidor para Cliente',desc:'A bio atual opera em registro técnico-descritivo inacessível ao cliente não especialista. A reescrita deve iniciar com o benefício central — o resultado que o cliente deseja — e introduzir os mecanismos (Rife, biofísica, detox) apenas como credenciais de entrega. Incluir CTA direto para agendamento.'},
+    {n:'02',priority:'Alta Prioridade',title:'Inserir Prova Social Quantificável e Visível',impact:'+Credibilidade, +Qualificação, +Confiança do Seguidor',desc:'Nenhum elemento de prova social está visível na bio ou nos destaques do perfil com 35K seguidores. Incluir número de atendimentos na bio, criar destaque de depoimentos em vídeo e fixar casos de sucesso documentados.'},
+    {n:'03',priority:'Alta Prioridade',title:'Arquitetar Funil de Conversão via Destaques',impact:'+Engajamento, +Leads Qualificados, +Agendamentos',desc:'O perfil não possui arquitetura de funil. A estrutura de Destaques deve funcionar como um mini-site de vendas: ① Como Funciona ② Resultados ③ Quem Somos ④ FAQ ⑤ Agendar — criando jornada orgânica de conversão sem custo adicional.'},
+  ]
+};
 
-function showScreen(id){ document.querySelectorAll('.screen').forEach(s=>{ s.classList.remove('active'); s.style.display='none'; }); let el=document.getElementById(id); if(id==='screen-input') el.style.display='flex'; else if(id==='screen-loading') el.style.display='flex'; else el.style.display='block'; el.classList.add('active'); window.scrollTo(0,0); }
-function setError(msg){ let e=document.getElementById('error-msg'); e.innerText=msg; e.style.display=msg?'block':'none'; }
-function scoreColor(pct){ if(pct<0.4) return 'var(--danger)'; if(pct<0.65) return 'var(--warn)'; return 'var(--success)'; }
-function scoreLabel(pct){ if(pct<0.4) return {text:'Crítico',bg:'rgba(220,38,38,.1)',color:'var(--danger)'}; if(pct<0.65) return {text:'Atenção',bg:'rgba(217,119,6,.1)',color:'var(--warn)'}; return {text:'Adequado',bg:'rgba(46,213,115,.1)',color:'var(--success)'}; }
-function buildSpeedometer(score,max=100){ let pct=score/max,cx=130,cy=120,ro=95,ri=60,needleR=82; function segAngle(p){ return Math.PI - p * Math.PI; } function arc(s,e,col){ let steps=50,d=''; for(let i=0;i<=steps;i++){ let t=i/steps,a=segAngle((s+t*(e-s))/100),px=cx+ro*Math.cos(a),py=cy-ro*Math.sin(a); d+=i===0?`M${px},${py}`:`L${px},${py}`;} for(let i=steps;i>=0;i--){ let t=i/steps,a=segAngle((s+t*(e-s))/100); d+=`L${cx+ri*Math.cos(a)},${cy-ri*Math.sin(a)}`;} return `<path d="${d}Z" fill="${col}" stroke="var(--bg)" stroke-width="2"/>`; } let needleA=segAngle(pct),nx=cx+needleR*Math.cos(needleA),ny=cy-needleR*Math.sin(needleA),col=pct<0.4?'#FF4757':pct<0.55?'#FFA502':pct<0.75?'#E9C46A':'#2ED573'; return `<svg viewBox="0 0 260 140" style="width:100%;max-width:260px">${arc(0,30,'#FF4757')}${arc(30,55,'#FFA502')}${arc(55,75,'#E9C46A')}${arc(75,100,'#2ED573')}<line x1="${cx}" y1="${cy}" x2="${nx}" y2="${ny}" stroke="var(--text)" stroke-width="3"/><circle cx="${cx}" cy="${cy}" r="9" fill="var(--text)"/><text x="${cx}" y="${cy+22}" text-anchor="middle" font-family="Syne" font-size="26" font-weight="800" fill="${col}">${score}</text><text x="${cx}" y="${cy+37}" text-anchor="middle" font-size="9" fill="var(--muted)">/100</text></svg>`; }
+// Alias for backward compatibility
+const DEMO = DEMO_SITE;
+
+let currentStepInterval = null, globalObserver = null, selectedType = 'site';
+
+function toggleSettings(){
+  document.getElementById('settings-panel').classList.toggle('open');
+  // Update last model used
+  const modelo = window._iaKitUltimoModelo;
+  const row  = document.getElementById('last-model-row');
+  const name = document.getElementById('last-model-name');
+  if(row && name){
+    if(modelo && modelo !== '—'){
+      row.style.display = 'block';
+      name.textContent = modelo;
+    } else {
+      row.style.display = 'none';
+    }
+  }
+}
+document.addEventListener('click', e => {
+  const panel = document.getElementById('settings-panel');
+  const btn = document.getElementById('settings-btn');
+  if(panel && !panel.contains(e.target) && e.target !== btn) panel.classList.remove('open');
+});
+
+function setTheme(t){
+  document.documentElement.setAttribute('data-theme', t);
+  localStorage.setItem('puv-theme', t);
+  document.getElementById('btn-dark')?.classList.toggle('active', t==='dark');
+  document.getElementById('btn-light')?.classList.toggle('active', t==='light');
+}
+function setFontSize(v){
+  document.documentElement.style.setProperty('--fs-base', v+'px');
+  const el = document.getElementById('fs-val');
+  if(el) el.textContent = v+'px';
+  document.getElementById('fs-slider').value = v;
+  localStorage.setItem('puv-fs', v);
+}
+
+function showScreen(id){
+  document.querySelectorAll('.screen').forEach(s => { s.classList.remove('active'); s.style.display='none'; });
+  const el = document.getElementById(id);
+  if(id==='screen-input' || id==='screen-loading' || id==='screen-demo-choice') el.style.display='flex';
+  else el.style.display='block';
+  el.classList.add('active');
+  window.scrollTo(0,0);
+}
+function setError(msg){
+  const e = document.getElementById('error-msg');
+  e.textContent = msg;
+  e.style.display = msg ? 'block' : 'none';
+}
+
+// ── ÚNICA FONTE DE VERDADE PARA CORES DE ZONA ────────────────────────────────
+function zoneForScore(score){
+  // Always expects 0-100 integer score
+  const s = Math.round(score);
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  if(s <= 30) return {
+    text:'Crítico',    col:'#FF4060',
+    colLight:'#C0202A', bg:'rgba(255,64,96,.12)', bgLight:'rgba(192,32,42,.1)'
+  };
+  if(s <= 55) return {
+    text:'Atenção',    col:'#E040A0',
+    colLight:'#901060', bg:'rgba(224,64,160,.12)', bgLight:'rgba(144,16,96,.1)'
+  };
+  if(s <= 70) return {
+    text:'Adequado',   col:'#FF8800',
+    colLight:'#A85A00', bg:'rgba(255,136,0,.12)', bgLight:'rgba(168,90,0,.1)'
+  };
+  if(s <= 85) return {
+    text:'Sólido',     col:'#00B4FF',
+    colLight:'#005FA3', bg:'rgba(0,180,255,.12)', bgLight:'rgba(0,95,163,.1)'
+  };
+  return {
+    text:'Referência', col:'#00DD66',
+    colLight:'#1A7A40', bg:'rgba(0,221,102,.12)', bgLight:'rgba(26,122,64,.1)'
+  };
+}
+
+function getZoneColor(score){
+  const z = zoneForScore(score);
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  return isDark ? z.col : z.colLight;
+}
+
+function getZoneBg(score){
+  const z = zoneForScore(score);
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  return isDark ? z.bg : z.bgLight;
+}
+
+function scoreColor(pct){
+  return getZoneColor(Math.round(pct * 100));
+}
+
+function scoreLabel(pct){
+  const s = Math.round(pct * 100);
+  const z = zoneForScore(s);
+  const isDark = document.documentElement.getAttribute('data-theme') !== 'light';
+  return {
+    text:  z.text,
+    color: isDark ? z.col : z.colLight,
+    bg:    isDark ? z.bg  : z.bgLight,
+  };
+}
+
+function buildSpeedometer(score, max=100){
+  const cx=160, cy=148, ro=118, ri=88, needleR=105;
+  const uid = 'spd' + Math.random().toString(36).slice(2,7);
+  window._speedoUid = uid;
+
+  function segAngle(p){ return Math.PI - (p/100) * Math.PI; }
+
+  function arcBg(s, e){
+    const steps=80; let d='';
+    for(let i=0;i<=steps;i++){ const t=i/steps,p=s+t*(e-s),a=segAngle(p); d+=i===0?`M${cx+ro*Math.cos(a)},${cy-ro*Math.sin(a)}`:`L${cx+ro*Math.cos(a)},${cy-ro*Math.sin(a)}`; }
+    for(let i=steps;i>=0;i--){ const t=i/steps,p=s+t*(e-s),a=segAngle(p); d+=`L${cx+ri*Math.cos(a)},${cy-ri*Math.sin(a)}`; }
+    return `<path d="${d}Z" fill="rgba(255,255,255,0.05)"/>`;
+  }
+
+  function arc(s, e, col, glow=false){
+    const steps=80, gap=1.2;
+    const sA=s+(s===0?0:gap), eA=e-(e===100?0:gap);
+    let d='';
+    for(let i=0;i<=steps;i++){ const t=i/steps,p=sA+t*(eA-sA),a=segAngle(p); d+=i===0?`M${cx+ro*Math.cos(a)},${cy-ro*Math.sin(a)}`:`L${cx+ro*Math.cos(a)},${cy-ro*Math.sin(a)}`; }
+    for(let i=steps;i>=0;i--){ const t=i/steps,p=sA+t*(eA-sA),a=segAngle(p); d+=`L${cx+ri*Math.cos(a)},${cy-ri*Math.sin(a)}`; }
+    const filter = glow ? `filter="url(#zg-${uid})"` : '';
+    const opacity = glow ? '1' : '0.75';
+    return `<path d="${d}Z" fill="${col}" opacity="${opacity}" ${filter}/>`;
+  }
+
+  // Use hardcoded zone color (not CSS var) for score display inside dark SVG panel
+  const zoneColor = getZoneColor(score);
+  const zoneGlowColor = score<=30?'rgba(255,51,85,.6)':score<=55?'rgba(255,136,0,.6)':score<=70?'rgba(234,192,0,.6)':score<=85?'rgba(0,153,238,.6)':'rgba(0,221,102,.6)';
+
+  const lbl = scoreLabel(score/100);
+  const nxS = cx + needleR*Math.cos(Math.PI);
+  const nyS = cy - needleR*Math.sin(Math.PI);
+
+  // Determine which zone the score falls in
+  const zones = [
+    {s:0,  e:30,  col:'#FF4060'},
+    {s:30, e:55,  col:'#E040A0'},
+    {s:55, e:70,  col:'#FF8800'},
+    {s:70, e:85,  col:'#00B4FF'},
+    {s:85, e:100, col:'#00DD66'},
+  ];
+
+  // Ticks every 2 points (51 marks), major every 10
+  const ticks = Array.from({length:51}, (_,i) => {
+    const p=i*2, a=segAngle(p);
+    const isMajor = p%10===0;
+    const isMid   = p%5===0 && !isMajor;
+    const o1=ro+2;
+    const o2=isMajor?ro+16:isMid?ro+10:ro+7;
+    const lx=cx+(ro+26)*Math.cos(a), ly=cy-(ro+26)*Math.sin(a);
+    const label = isMajor ? `<text x="${lx.toFixed(1)}" y="${(ly+3.5).toFixed(1)}" text-anchor="middle" font-family="Inter,sans-serif" font-size="8.5" font-weight="600" fill="rgba(255,255,255,0.45)">${p}</text>` : '';
+    const opacity = isMajor?'0.6':isMid?'0.3':'0.18';
+    const sw = isMajor?'1.5':isMid?'0.9':'0.6';
+    return `<line x1="${(cx+o1*Math.cos(a)).toFixed(1)}" y1="${(cy-o1*Math.sin(a)).toFixed(1)}" x2="${(cx+o2*Math.cos(a)).toFixed(1)}" y2="${(cy-o2*Math.sin(a)).toFixed(1)}" stroke="rgba(255,255,255,${opacity})" stroke-width="${sw}" stroke-linecap="round"/>` + label;
+  }).join('');
+
+  const isDarkTheme = document.documentElement.getAttribute('data-theme') !== 'light';
+  const panelBg = isDarkTheme
+    ? 'linear-gradient(160deg,#080c18 0%,#0d1424 60%,#0a1020 100%)'
+    : 'linear-gradient(160deg,#1a2340 0%,#1e2a4a 60%,#162038 100%)';
+  const panelShadow = isDarkTheme
+    ? '0 12px 40px rgba(0,0,0,.7),inset 0 1px 0 rgba(255,255,255,.05)'
+    : '0 8px 32px rgba(20,40,100,.25),inset 0 1px 0 rgba(255,255,255,.08)';
+  const hubFill = isDarkTheme ? '#080c18' : '#1a2340';
+
+  return `<div style="background:${panelBg};border-radius:18px;padding:1.25rem 1rem .85rem;display:inline-block;width:100%;max-width:380px;box-shadow:${panelShadow}">
+  <svg id="${uid}" viewBox="0 0 320 210" style="width:100%;display:block;overflow:visible">
+    <defs>
+      <filter id="ng-${uid}"><feGaussianBlur stdDeviation="2.5" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="sg-${uid}"><feGaussianBlur stdDeviation="6" result="b"/><feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge></filter>
+      <filter id="zg-${uid}" x="-30%" y="-30%" width="160%" height="160%">
+        <feGaussianBlur stdDeviation="5" result="b"/>
+        <feComposite in="b" in2="SourceGraphic" operator="over"/>
+        <feMerge><feMergeNode in="b"/><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+      </filter>
+    </defs>
+
+    <!-- Inactive background arcs -->
+    ${zones.map(z => arcBg(z.s, z.e)).join('')}
+
+    <!-- Active color arcs — zone containing score gets glow -->
+    ${zones.map(z => {
+      const active = score >= z.s && score <= z.e;
+      return arc(z.s, z.e, z.col, active);
+    }).join('')}
+
+    <!-- Score indicator dot on arc at current position -->
+    ${(() => {
+      const a = segAngle(score);
+      const mr = (ro+ri)/2;
+      const dx = cx+mr*Math.cos(a), dy = cy-mr*Math.sin(a);
+      return `<circle cx="${dx.toFixed(1)}" cy="${dy.toFixed(1)}" r="5" fill="white" opacity="0.9" filter="url(#ng-${uid})"/>`;
+    })()}
+
+    <!-- Ticks -->
+    ${ticks}
+
+    <!-- Needle shadow + needle -->
+    <line id="${uid}-shadow" x1="${cx}" y1="${cy}" x2="${nxS}" y2="${nyS}" stroke="rgba(0,0,0,0.6)" stroke-width="5" stroke-linecap="round"/>
+    <line id="${uid}-needle" x1="${cx}" y1="${cy}" x2="${nxS}" y2="${nyS}" stroke="white" stroke-width="2.5" stroke-linecap="round" filter="url(#ng-${uid})"/>
+
+    <!-- Hub -->
+    <circle cx="${cx}" cy="${cy}" r="12" fill="${hubFill}" stroke="rgba(255,255,255,0.12)" stroke-width="1.5"/>
+    <circle cx="${cx}" cy="${cy}" r="5" fill="${lbl.color}"/>
+
+    <!-- Score number -->
+    <text id="${uid}-score" x="${cx}" y="${cy+40}" text-anchor="middle" dominant-baseline="central" font-family="Barlow Condensed,sans-serif" font-size="44" font-weight="800" fill="${lbl.color}" opacity="0" filter="url(#sg-${uid})">${score}</text>
+    <text x="${cx}" y="${cy+64}" text-anchor="middle" font-family="Inter,sans-serif" font-size="10" fill="rgba(255,255,255,0.3)">/ ${max} pontos</text>
+  </svg>
+</div>`;
+}
+
+
+function animateNeedle(uid, score, max, cx, cy, needleR){
+  var needle  = document.getElementById(uid+'-needle');
+  var shadow  = document.getElementById(uid+'-shadow');
+  var scoreEl = document.getElementById(uid+'-score');
+  if(!needle) return;
+  var startAngle = Math.PI;
+  var endAngle   = Math.PI - (score/max) * Math.PI;
+  var duration   = 1200, start = null;
+  function ease(t){ return t<0.5 ? 2*t*t : 1-Math.pow(-2*t+2,2)/2; }
+  function step(ts){
+    if(!start) start = ts;
+    var prog  = Math.min((ts-start)/duration, 1);
+    var e     = ease(prog);
+    var angle = startAngle + (endAngle-startAngle)*e;
+    var nx    = cx + needleR*Math.cos(angle);
+    var ny    = cy - needleR*Math.sin(angle);
+    needle.setAttribute('x2', nx); needle.setAttribute('y2', ny);
+    shadow.setAttribute('x2', nx); shadow.setAttribute('y2', ny);
+    if(scoreEl) scoreEl.setAttribute('opacity', e.toFixed(2));
+    if(prog < 1) requestAnimationFrame(step);
+  }
+  setTimeout(function(){ requestAnimationFrame(step); }, 300);
+}
 
 function renderReport(data){
-  let container=document.getElementById('report-content'),critHTML=data.criteria.map(cr=>{ let pct=cr.score/cr.max,lbl=scoreLabel(pct); return `<div class="criterion"><div class="crit-header"><span class="crit-name" data-tip="${cr.tip||''}">${cr.name}<span class="tip-icon">?</span></span><div><span style="font-size:.7rem;background:${lbl.bg};padding:2px 8px;border-radius:30px">${lbl.text}</span><span class="crit-score" style="margin-left:8px">${cr.score}/${cr.max}</span></div></div><div class="meter-track"><div class="meter-fill" style="width:0%;background:${scoreColor(pct)}" data-pct="${pct*100}"></div></div><div class="crit-desc">${cr.desc}</div></div>`; }).join('');
-  let gapsHTML=data.gaps.map(g=>`<tr><td>${g[0]}</td><td>${g[1]}</td></tr>`).join('');
-  let slidesHTML=data.slides.map(s=>`<div class="slide-pair"><div class="slide-card before"><div class="slide-badge">◀ Antes · ${s.num}</div><div class="slide-elem">${s.elem}</div><div class="slide-text">${s.before}</div></div><div class="slide-card after"><div class="slide-badge">▶ Depois · ${s.num}</div><div class="slide-elem">${s.elem}</div><div class="slide-text">${s.after}</div></div></div>`).join('');
-  let recsHTML=data.recommendations.map(r=>`<div class="rec-card"><div class="rec-num">${r.n}</div><div><div class="rec-priority">${r.priority}</div><div class="rec-title">${r.title}</div><div class="rec-impact">${r.impact}</div><div class="rec-desc">${r.desc}</div></div></div>`).join('');
-  container.innerHTML=`<div id="timeline-nav" style="position:sticky;top:0;z-index:99;background:var(--surface);border-bottom:1px solid var(--border);padding:0.5rem 0;margin-bottom:1.8rem;overflow-x:auto;white-space:nowrap"><div style="display:inline-flex;gap:0.3rem;padding:0 0.5rem"><button class="tnav-btn active" onclick="navScrollTo('sec-score')">🏆 Score</button><button class="tnav-btn" onclick="navScrollTo('sec-metrics')">📐 Métricas</button><button class="tnav-btn" onclick="navScrollTo('sec-gaps')">🔍 Gaps</button><button class="tnav-btn" onclick="navScrollTo('sec-slides')">↔ Antes/Depois</button><button class="tnav-btn" onclick="navScrollTo('sec-recs')">🎯 Recomendações</button><button class="tnav-btn" onclick="navScrollTo('sec-cta')">🚀 Próximos</button></div></div><div class="report-header"><div class="report-meta"><h2>Análise PUV Score</h2><div class="url-tag">${data.url}</div><div class="bench-tag">${data.benchmark}</div></div><button class="btn-back" onclick="goBack()">← Nova análise</button></div><div id="sec-score" class="report-section"><div class="section-timeline-label">01 · Score Global</div><div class="score-hero"><div style="flex-shrink:0">${buildSpeedometer(data.total)}</div><div class="score-info"><div class="score-number">${data.total}<span style="font-size:1rem">/100</span></div><div class="score-class">${data.classification}</div><div class="score-summary">${data.summary}</div></div></div></div><div id="sec-metrics" class="report-section"><div class="section-timeline-label">02 · Métricas PUV</div><div class="criteria-list">${critHTML}</div></div><div id="sec-gaps" class="report-section"><div class="section-timeline-label">03 · Gaps identificados</div><div class="gap-wrap"><table class="gap-table"><thead><tr><th>Como está hoje</th><th>Como deve ser</th></tr></thead><tbody>${gapsHTML}</tbody></table></div></div><div id="sec-slides" class="report-section"><div class="section-timeline-label">04 · Antes & Depois</div><div class="slides-list">${slidesHTML}</div></div><div id="sec-recs" class="report-section"><div class="section-timeline-label">05 · Recomendações</div><div class="rec-list">${recsHTML}</div></div><div id="sec-cta" class="report-section"><div class="section-timeline-label">06 · Próximos passos</div><div class="cta-section"><div class="cta-title">Como você quer executar?</div><div class="cta-grid"><div class="cta-card pa" onclick="requestPDF('proprio')"><div class="cta-letter">A</div><div class="cta-name">Execução própria</div><button class="cta-btn">Solicitar PDF</button></div><div class="cta-card pb" onclick="requestPDF('agencia')"><div class="cta-letter">B</div><div class="cta-name">Com sua agência</div><button class="cta-btn">PDF + briefing</button></div><div class="cta-card pc" onclick="requestPDF('assessoria')"><div class="cta-letter">C</div><div class="cta-name">Nossa assessoria</div><button class="cta-btn">Falar com especialista</button></div></div></div></div>`;
-  showScreen('screen-report'); window.currentData=data;
-  requestAnimationFrame(()=>{ setTimeout(()=>{ document.querySelectorAll('.meter-fill').forEach(el=>{ el.style.width=el.dataset.pct+'%'; }); },150); });
-  if(globalObserver) globalObserver.disconnect(); setTimeout(()=>{ let sections=['sec-score','sec-metrics','sec-gaps','sec-slides','sec-recs','sec-cta']; globalObserver=new IntersectionObserver(entries=>{ entries.forEach(e=>{ if(e.isIntersecting) setActiveNav(e.target.id); }); },{threshold:0.3,rootMargin:'-70px 0px -40% 0px'}); sections.forEach(id=>{ let el=document.getElementById(id); if(el) globalObserver.observe(el); }); },300);
+  const c = document.getElementById('report-content');
+  const critHTML = data.criteria.map(cr => {
+    const pct = cr.score/cr.max, lbl = scoreLabel(pct);
+    return `<div class="criterion">
+      <div class="crit-header">
+        <span class="crit-name" ${cr.tip?`data-tip="${cr.tip}"`:''}>${cr.name}${cr.tip?'<span class="tip-icon">?</span>':''}</span>
+        <div style="display:flex;align-items:center;gap:.5rem">
+          <span style="font-size:.68rem;font-weight:700;padding:.2rem .6rem;border-radius:30px;background:${lbl.bg};color:${lbl.color}">${lbl.text}</span>
+          <span class="crit-score" style="color:${lbl.color}">${cr.score}/${cr.max}</span>
+        </div>
+      </div>
+      <div class="meter-track"><div class="meter-fill" style="width:0%;background:${scoreColor(pct)}" data-pct="${pct*100}"></div></div>
+      <div class="crit-desc">${cr.desc}</div>
+    </div>`;
+  }).join('');
+
+  const gapsHTML = data.gaps.map(g => `<tr><td>${g[0]}</td><td>${g[1]}</td></tr>`).join('');
+  const slidesHTML = data.slides.map(s => `
+    <div class="slide-pair">
+      <div class="slide-card before"><div class="slide-badge">◀ Antes · ${s.num}</div><div class="slide-elem">${s.elem}</div><div class="slide-text">${s.before}</div></div>
+      <div class="slide-card after"><div class="slide-badge">▶ Depois · ${s.num}</div><div class="slide-elem">${s.elem}</div><div class="slide-text">${s.after}</div></div>
+    </div>`).join('');
+  const recsHTML = data.recommendations.map((r, i) => `
+    <div class="rec-card">
+      <div class="rec-num">${r.n}</div>
+      <div style="flex:1">
+        <div class="rec-priority">${r.priority}</div>
+        <div class="rec-title">${r.title}</div>
+        <div class="rec-impact">${r.impact}</div>
+        <div class="rec-desc">${r.desc}</div>
+        <button onclick="toggleHow(${i})" style="margin-top:.75rem;background:var(--accent-bg);border:1px solid var(--accent-bdr);color:var(--accent);border-radius:var(--radius-sm);padding:.35rem .8rem;font-size:.7rem;font-weight:600;cursor:pointer;font-family:var(--inter)">
+          🔧 Ver como fazer
+        </button>
+        <div id="how-${i}" style="display:none;margin-top:.75rem;background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:.85rem 1rem">
+          <div style="font-size:.68rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent);margin-bottom:.5rem">Como implementar</div>
+          <div id="how-content-${i}" style="font-size:.8rem;color:var(--text2);line-height:1.7">
+            <div style="color:var(--muted);font-size:.75rem">🔒 Carregando...</div>
+          </div>
+        </div>
+      </div>
+    </div>`).join('');
+
+  // Demo CTA — centered, prominent, only in demo mode
+  const demoCTA = data._isDemo ? `
+    <div style="text-align:center;margin-top:1.25rem;padding-top:1rem;border-top:1px solid var(--border)">
+      <button onclick="requestDemoConversion()" style="
+        background:var(--gold);color:var(--btn-on-accent);border:none;
+        border-radius:40px;padding:.65rem 2rem;font-size:.88rem;font-weight:700;
+        cursor:pointer;font-family:var(--syne);letter-spacing:.04em;
+        animation:demoBlink 1.2s ease-in-out infinite;
+        box-shadow:0 4px 20px rgba(221,181,90,.35);
+        white-space:nowrap;display:inline-flex;align-items:center;gap:.5rem">
+        ✦ Solicitar análise real →
+      </button>
+      <div style="font-size:.68rem;color:var(--muted);margin-top:.5rem">Esta é uma simulação. Clique para receber sua análise com dados reais.</div>
+    </div>` : '';
+
+  c.innerHTML = `
+    <!-- STICKY HEADER + TIMELINE NAV -->
+    <div style="position:sticky;top:0;z-index:99;background:var(--surface);border-bottom:1px solid var(--border);margin-bottom:1.5rem">
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:.6rem 0 0;flex-wrap:wrap;gap:.5rem">
+        <div>
+          <div style="font-family:var(--syne);font-size:1rem;font-weight:800;line-height:1.2">Análise PUV Score <span style="font-size:.6em;color:var(--muted);font-weight:400">v0.1.2.4</span></div>
+          <div style="font-size:.75rem;margin-top:.15rem"><a href="${data.url}" target="_blank" rel="noopener" style="color:var(--accent);text-decoration:none" onmouseover="this.style.textDecoration='underline'" onmouseout="this.style.textDecoration='none'">${data.url} ↗</a></div>
+        </div>
+        <button class="btn-back" onclick="goBack()">← Nova análise</button>
+      </div>
+      <div id="timeline-nav" style="overflow-x:auto;white-space:nowrap;padding:.4rem 0 .5rem">
+        <div style="display:inline-flex;gap:.35rem">
+          <button class="tnav-btn active" onclick="navScrollTo('sec-score')">🏆 Score</button>
+          <button class="tnav-btn" onclick="navScrollTo('sec-metrics')">📐 Métricas</button>
+          <button class="tnav-btn" onclick="navScrollTo('sec-gaps')">🔍 Gaps</button>
+          <button class="tnav-btn" onclick="navScrollTo('sec-slides')">↔ Antes/Depois</button>
+          <button class="tnav-btn" onclick="navScrollTo('sec-recs')">🎯 Recomendações</button>
+          <button class="tnav-btn" onclick="navScrollTo('sec-plan')">🔧 Plano</button>
+          <button class="tnav-btn" onclick="navScrollTo('sec-cta')">🚀 Próximos passos</button>
+        </div>
+      </div>
+    </div>
+
+
+    <div id="sec-score" class="report-section">
+      <div class="section-timeline-label">01 · Score Global</div>
+      <!-- Score Hero -->
+      <div class="score-hero">
+        <div style="flex-shrink:0;width:100%;max-width:380px">${buildSpeedometer(data.total)}</div>
+        <div class="score-info">
+          <div class="score-number" style="color:${scoreLabel(data.total/100).color}">${data.total}<span style="font-size:1rem;color:var(--muted)">/100</span></div>
+          <div class="score-class" style="background:${scoreLabel(data.total/100).bg};color:${scoreLabel(data.total/100).color}">${scoreLabel(data.total/100).text}</div>
+          <div class="score-summary">${data.summary}</div>
+        </div>
+      </div>
+      <!-- Legenda de escala -->
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem 1.25rem;margin-top:1rem;margin-bottom:1.5rem">
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">Escala de classificação PUV Score</div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.5rem">
+          ${[
+            {range:'0 – 30',  mid:15,  desc:'Reformulação urgente'},
+            {range:'31 – 55', mid:43,  desc:'Oportunidades prioritárias'},
+            {range:'56 – 70', mid:63,  desc:'Ajustes pontuais'},
+            {range:'71 – 85', mid:78,  desc:'Refinamentos premium'},
+            {range:'86 – 100',mid:93,  desc:'Benchmark do segmento'},
+          ].map((s,idx) => {
+            const mins = [0,31,56,71,86], maxs = [30,55,70,85,100];
+            const isActive = data.total >= mins[idx] && data.total <= maxs[idx];
+            const z = zoneForScore(s.mid);
+            const isDarkNow = document.documentElement.getAttribute('data-theme') !== 'light';
+            const col = isDarkNow ? z.col : z.colLight;
+            const bg  = isDarkNow ? z.bg  : z.bgLight;
+            return `<div style="border-radius:var(--radius-sm);padding:.6rem .75rem;background:${isActive ? bg : 'transparent'};border:1.5px solid ${isActive ? col : 'var(--border)'};transition:all .2s">
+              <div style="font-size:.65rem;color:var(--muted);margin-bottom:.2rem">${s.range}</div>
+              <div style="font-size:.82rem;font-weight:700;color:${col};margin-bottom:.15rem">${z.text}</div>
+              <div style="font-size:.68rem;color:var(--muted);line-height:1.4">${s.desc}</div>
+              ${isActive ? `<div style="font-size:.6rem;font-weight:700;color:${col};margin-top:.25rem;letter-spacing:.05em">← VOCÊ ESTÁ AQUI</div>` : ''}
+            </div>`;
+          }).join('')}
+        </div>
+      ${demoCTA}
+    ${data._contentFailed ? `
+    <div style="background:rgba(255,90,110,.08);border:1.5px solid var(--danger);border-radius:var(--radius-md);padding:.9rem 1.1rem;margin-bottom:1.25rem;display:flex;gap:.75rem;align-items:flex-start">
+      <span style="font-size:1.2rem;flex-shrink:0">⚠️</span>
+      <div>
+        <div style="font-size:.82rem;font-weight:600;color:var(--danger);margin-bottom:.25rem">Conteúdo não acessível — análise parcial baseada apenas no domínio</div>
+        <div style="font-size:.75rem;color:var(--text2);line-height:1.6">
+          Os proxies não conseguiram carregar o conteúdo real de <strong>${data.url}</strong>. As pontuações são conservadoras. 
+          Para análise completa: copie o texto da página e cole no campo de URL — ou solicite o <strong style="color:var(--gold)">PUV Audit</strong> com revisão humana.
+        </div>
+      </div>
+    </div>` : ''}
+    ${data._isDemo ? `
+    <div id="demo-top-bar" style="
+      position:sticky;top:0;z-index:98;
+      background:rgba(221,181,90,.12);
+      backdrop-filter:blur(12px);
+      -webkit-backdrop-filter:blur(12px);
+      border-bottom:1px solid rgba(221,181,90,.3);
+      padding:.5rem 1rem;
+      display:flex;align-items:center;justify-content:space-between;
+      gap:.75rem;flex-wrap:wrap;
+      margin-bottom:1rem;
+    ">
+      <div style="display:flex;align-items:center;gap:.5rem;font-size:.75rem;color:var(--gold);font-weight:600">
+        <span>🎭</span>
+        <span>Análise simulada — exemplo de funcionamento do PUV Score</span>
+      </div>
+      <button onclick="requestDemoConversion()" style="
+        background:var(--gold);color:var(--btn-on-accent);border:none;
+        border-radius:30px;padding:.35rem .9rem;font-size:.72rem;font-weight:700;
+        cursor:pointer;font-family:var(--syne);white-space:nowrap;
+        animation:demoBlink 1.2s ease-in-out infinite;flex-shrink:0">
+        Quero minha análise real →
+      </button>
+    </div>` : ''}
+    </div>
+    <!-- BLOCO DE METODOLOGIA -->
+    <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem 1.25rem;margin-bottom:1.5rem;display:flex;flex-wrap:wrap;gap:1rem;align-items:flex-start">
+      <div style="flex:1;min-width:220px">
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.4rem">Base metodológica</div>
+        <div style="font-size:.82rem;color:var(--text2);line-height:1.6">
+          <strong style="color:var(--text)">High-End Digital Positioning Framework (HEDPF)</strong><br>
+          Desenvolvido por <strong style="color:var(--accent)">FNW Advisory &amp; Partners</strong> · Benchmarks segundo
+          <a href="https://www.nngroup.com" target="_blank" style="color:var(--accent);text-decoration:none">Nielsen Norman Group</a> e
+          <a href="https://cxl.com" target="_blank" style="color:var(--accent);text-decoration:none">CXL Institute</a>
+        </div>
+        <div style="font-size:.72rem;color:var(--muted);margin-top:.4rem;line-height:1.5">
+          Score calculado por IA calibrada com âncoras objetivas por critério.
+          Revisão humana disponível via <strong style="color:var(--gold)">PUV Audit</strong>.
+        </div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:.4rem;flex-shrink:0">
+        <button onclick="requestAudit()" style="background:var(--gold-bg);border:1px solid var(--gold);color:var(--gold);border-radius:var(--radius-sm);padding:.45rem .9rem;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--inter);white-space:nowrap">
+          🔍 Solicitar PUV Audit →
+        </button>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:.35rem">
+          <button onclick="gatedAction('pdf-view')" style="background:var(--card);border:1px solid var(--border2);color:var(--muted);border-radius:var(--radius-sm);padding:.38rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer;font-family:var(--inter);white-space:nowrap">👁 Ver PDF</button>
+          <button onclick="gatedAction('pdf')" style="background:var(--card);border:1px solid var(--border2);color:var(--muted);border-radius:var(--radius-sm);padding:.38rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer;font-family:var(--inter);white-space:nowrap">⬇ PDF</button>
+          <button onclick="toggleJSON()" id="json-toggle-btn" style="background:var(--card);border:1px solid var(--border2);color:var(--muted);border-radius:var(--radius-sm);padding:.38rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer;font-family:var(--inter);white-space:nowrap">👁 Ver JSON</button>
+          <button onclick="gatedAction('json')" style="background:var(--card);border:1px solid var(--border2);color:var(--muted);border-radius:var(--radius-sm);padding:.38rem .5rem;font-size:.68rem;font-weight:600;cursor:pointer;font-family:var(--inter);white-space:nowrap">⬇ JSON</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- JSON VIEWER (interno) -->
+    <div id="json-viewer" style="display:none;margin-bottom:1.5rem">
+      <div style="background:var(--card);border:1px solid var(--border2);border-radius:var(--radius-md);overflow:hidden">
+        <div style="background:var(--card2);border-bottom:1px solid var(--border);padding:.6rem 1rem;display:flex;justify-content:space-between;align-items:center">
+          <span style="font-size:.7rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">JSON — Saída completa da análise</span>
+          <button onclick="copyJSON()" style="background:var(--accent-bg);border:1px solid var(--accent-bdr);color:var(--accent);border-radius:var(--radius-sm);padding:.3rem .75rem;font-size:.7rem;font-weight:600;cursor:pointer;font-family:var(--inter)">Copiar</button>
+        </div>
+        <pre id="json-content" style="padding:1rem;font-size:.72rem;line-height:1.6;color:var(--text2);overflow-x:auto;white-space:pre-wrap;word-break:break-word;max-height:400px;overflow-y:auto;font-family:monospace"></pre>
+      </div>
+    </div>
+    <div id="sec-metrics" class="report-section">
+      <div class="section-timeline-label" data-tip="Cada critério vale 20 pontos. Total = soma dos 5.">02 · Métricas PUV Score <span class="tip-icon">?</span></div>
+      <div class="criteria-list">${critHTML}</div>
+      ${demoCTA}
+    </div>
+    <div id="sec-gaps" class="report-section">
+      <div class="section-timeline-label">03 · Gaps identificados</div>
+      <div class="gap-wrap"><table class="gap-table"><thead><tr><th>Como está hoje</th><th>Como deve ser</th></tr></thead><tbody>${gapsHTML}</tbody></table></div>
+      ${demoCTA}
+    </div>
+    <div id="sec-slides" class="report-section">
+      <div class="section-timeline-label">04 · Antes &amp; Depois</div>
+      <div class="slides-list">${slidesHTML}</div>
+      ${demoCTA}
+    </div>
+    <div id="sec-recs" class="report-section">
+      <div class="section-timeline-label">05 · Recomendações prioritárias</div>
+      <div class="rec-list">${recsHTML}</div>
+      ${demoCTA}
+    </div>
+    <div id="sec-plan" class="report-section">
+      <div class="section-timeline-label">07 · Plano de Implementação</div>
+
+      <!-- Observações do cliente — sempre visível para anotação -->
+      <div style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem 1.25rem;margin-bottom:.75rem">
+        <div style="font-size:.68rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin-bottom:.75rem">📝 Observações da conversa com o cliente</div>
+        <div style="display:flex;flex-direction:column;gap:.6rem">
+          ${data.recommendations.map((r,i) => `
+            <div>
+              <div style="font-size:.75rem;font-weight:600;color:var(--text2);margin-bottom:.3rem">${r.n} · ${r.title}</div>
+              <textarea id="obs-${i}" rows="2"
+                placeholder="Anote o que o cliente disse sobre este ponto durante a conversa..."
+                oninput="saveObs(${i}, this.value)"
+                style="width:100%;background:var(--surface);border:1.5px solid var(--border2);border-radius:var(--radius-sm);padding:.55rem .75rem;font-size:.78rem;color:var(--text);font-family:var(--inter);resize:vertical;outline:none;line-height:1.5;transition:border-color .2s"
+                onfocus="this.style.borderColor='var(--accent)'"
+                onblur="this.style.borderColor='var(--border2)'"
+              ></textarea>
+            </div>`).join('')}
+        </div>
+      </div>
+
+      <!-- Unlock button -->
+      <div id="plan-lock" style="background:var(--card2);border:1px solid var(--border);border-radius:var(--radius-md);padding:1rem 1.25rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;margin-bottom:.75rem">
+        <div>
+          <div style="font-size:.85rem;font-weight:600;color:var(--text);margin-bottom:.2rem">Plano detalhado gerado por IA com contexto da análise</div>
+          <div style="font-size:.75rem;color:var(--muted)">Acesso restrito · equipe FNW · inclui observações do cliente</div>
+        </div>
+        <button onclick="showPlan()" id="plan-unlock-btn" style="background:var(--accent);color:var(--btn-on-accent);border:none;border-radius:var(--radius-sm);padding:.5rem 1.25rem;font-size:.78rem;font-weight:700;cursor:pointer;font-family:var(--syne);white-space:nowrap">
+          🔓 Gerar plano com IA
+        </button>
+      </div>
+
+      <!-- Plan content -->
+      <div id="plan-content" style="display:none">
+        <div id="plan-loading" style="display:none;text-align:center;padding:2rem;color:var(--muted);font-size:.85rem">
+          <div style="width:32px;height:32px;border:2px solid var(--border2);border-top-color:var(--accent);border-radius:50%;animation:spin .8s linear infinite;margin:0 auto .75rem"></div>
+          Gerando plano personalizado com IA...
+        </div>
+        <div id="plan-table-wrap" style="display:none;overflow-x:auto;border-radius:var(--radius-md);border:1px solid var(--border)">
+          <table style="width:100%;border-collapse:collapse;font-size:.8rem;min-width:560px">
+            <thead>
+              <tr style="background:var(--card2)">
+                <th style="text-align:left;padding:.7rem .9rem;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--accent)">#</th>
+                <th style="text-align:left;padding:.7rem .9rem;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Ação</th>
+                <th style="text-align:left;padding:.7rem .9rem;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Como implementar (passo a passo)</th>
+                <th style="text-align:left;padding:.7rem .9rem;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Ferramenta</th>
+                <th style="text-align:left;padding:.7rem .9rem;font-size:.65rem;font-weight:700;letter-spacing:.07em;text-transform:uppercase;color:var(--muted)">Prazo</th>
+              </tr>
+            </thead>
+            <tbody id="plan-tbody"></tbody>
+          </table>
+        </div>
+        <div style="margin-top:.75rem;display:flex;gap:.5rem;flex-wrap:wrap">
+          <div style="flex:1;min-width:200px;padding:.65rem 1rem;background:var(--gold-bg);border:1px solid var(--gold);border-radius:var(--radius-sm);font-size:.75rem;color:var(--gold);line-height:1.6">
+            💡 Plano gerado com IA usando contexto completo da análise. Para acompanhamento, solicite o <strong>PUV Audit</strong>.
+          </div>
+          <button onclick="refreshPlan()" style="background:var(--card2);border:1px solid var(--border2);color:var(--muted);border-radius:var(--radius-sm);padding:.5rem 1rem;font-size:.72rem;font-weight:600;cursor:pointer;font-family:var(--inter);white-space:nowrap">
+            ↻ Regenerar com observações
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <div id="sec-cta" class="report-section">
+      <div class="section-timeline-label">06 · Próximos passos</div>
+      <div class="cta-section">
+        <div class="cta-title">Como você quer executar?</div>
+        <div class="cta-subtitle">As otimizações estão identificadas. Para receber o PDF completo, escolha abaixo.</div>
+        <div class="cta-grid">
+          <div class="cta-card pa" data-tip="Implemente você mesmo com base neste relatório." onclick="requestPDF('proprio')">
+            <div class="cta-letter">A</div><div class="cta-name">Execução própria</div>
+            <div class="cta-desc">Use esta análise como guia.</div>
+            <button class="cta-btn">Solicitar PDF</button>
+          </div>
+          <div class="cta-card pb" data-tip="Repasse como briefing para sua agência." onclick="requestPDF('agencia')">
+            <div class="cta-letter">B</div><div class="cta-name">Com sua agência</div>
+            <div class="cta-desc">Briefing estratégico pronto.</div>
+            <button class="cta-btn">PDF + briefing</button>
+          </div>
+          <div class="cta-card pc" data-tip="Nossa equipe executa a implementação completa." onclick="requestPDF('assessoria')">
+            <div class="cta-letter">C</div><div class="cta-name">Nossa assessoria</div>
+            <div class="cta-desc">Implementação por especialistas.</div>
+            <button class="cta-btn">Falar com especialista →</button>
+          </div>
+        </div>
+        <div class="cta-note">📄 O PDF completo é entregue via WhatsApp após solicitação. Clique em qualquer opção acima.</div>
+        <div style="margin-top:.75rem;padding:.6rem 1rem;background:var(--card2);border-radius:var(--radius-md);border:1px solid var(--border);font-size:.72rem;color:var(--muted);line-height:1.6">
+          🔒 Arquivos com nome da análise disponíveis acima · Senha: equipe FNW
+        </div>
+      </div>
+    </div>`;
+
+  showScreen('screen-report');
+  window.currentData = data;
+
+  requestAnimationFrame(() => {
+    setTimeout(() => {
+      document.querySelectorAll('.meter-fill').forEach(el => { el.style.width = el.dataset.pct + '%'; });
+      // Animate speedometer needle
+      animateNeedle(window._speedoUid, data.total, 100, 160, 148, 105);
+    }, 150);
+  });
+
+  if(globalObserver) globalObserver.disconnect();
+  setTimeout(() => {
+    const sections = ['sec-score','sec-metrics','sec-gaps','sec-slides','sec-recs','sec-plan','sec-cta'];
+    globalObserver = new IntersectionObserver(entries => {
+      entries.forEach(e => { if(e.isIntersecting) setActiveNav(e.target.id); });
+    }, {threshold:.3, rootMargin:'-70px 0px -40% 0px'});
+    sections.forEach(id => { const el = document.getElementById(id); if(el) globalObserver.observe(el); });
+  }, 300);
 }
-function setActiveNav(id){ let mapping={ 'sec-score':0,'sec-metrics':1,'sec-gaps':2,'sec-slides':3,'sec-recs':4,'sec-cta':5 }; let btns=document.querySelectorAll('.tnav-btn'); if(btns[mapping[id]]){ btns.forEach(b=>b.classList.remove('active')); btns[mapping[id]].classList.add('active'); } }
-function navScrollTo(id){ let el=document.getElementById(id); if(el){ el.scrollIntoView({behavior:'smooth',block:'start'}); setActiveNav(id); } }
 
-let selectedType='site';
-function selectType(type){ selectedType=type; document.querySelectorAll('.type-btn:not(.coming-soon)').forEach(b=>b.classList.remove('active')); document.getElementById(`type-${type}`)?.classList.add('active'); document.getElementById('url-input').placeholder=type==='site'?'https://seusite.com.br':'https://instagram.com/perfil'; }
+function setActiveNav(id){
+  const map = {'sec-score':0,'sec-metrics':1,'sec-gaps':2,'sec-slides':3,'sec-recs':4,'sec-plan':5,'sec-cta':6};
+  const btns = document.querySelectorAll('.tnav-btn');
+  if(btns[map[id]] !== undefined){ btns.forEach(b => b.classList.remove('active')); btns[map[id]].classList.add('active'); }
+}
+function navScrollTo(id){
+  const el = document.getElementById(id);
+  if(el){ el.scrollIntoView({behavior:'smooth', block:'start'}); setActiveNav(id); }
+}
 
-function getLeadData(){ return { name:document.getElementById('lead-name').value.trim(), email:document.getElementById('lead-email').value.trim(), company:document.getElementById('lead-company').value.trim() }; }
-const STEPS=['Lendo conteúdo da URL...','Identificando segmento...','Aplicando framework PUV...','Calculando métricas...','Gerando slides...','Finalizando relatório...']; let stepIdx=0;
-function cycleStep(){ let stepEl=document.getElementById('loading-step'); if(stepEl) stepEl.textContent=STEPS[stepIdx%STEPS.length]; stepIdx++; }
+function selectType(type){
+  selectedType = type;
+  document.querySelectorAll('.type-btn:not(.coming-soon)').forEach(b => b.classList.remove('active'));
+  document.getElementById(`type-${type}`)?.classList.add('active');
+  document.getElementById('url-input').placeholder = type==='site' ? 'https://seusite.com.br' : type==='instagram' ? 'https://instagram.com/seuperfil' : type==='youtube' ? 'https://youtube.com/@seucanal' : 'https://';
+}
 
-async function fetchContent(url){ let proxies=[`https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,`https://corsproxy.io/?${encodeURIComponent(url)}`]; for(let p of proxies){ try{ let r=await fetch(p,{signal:AbortSignal.timeout(9000)}); if(!r.ok) continue; let d=await r.json().catch(()=>null); let txt=d?.contents||await r.text(); if(txt&&txt.length>80) return txt.replace(/<script.*?<\/script>/gi,'').replace(/<style.*?<\/style>/gi,'').replace(/<[^>]+>/g,' ').replace(/\s+/g,' ').trim().substring(0,7000); }catch(e){}} return `URL: ${url} — conteúdo não acessível diretamente.`; }
+function getLeadData(){
+  return {
+    name:    document.getElementById('lead-name').value.trim(),
+    email:   document.getElementById('lead-email').value.trim(),
+    company: document.getElementById('lead-company').value.trim(),
+  };
+}
 
-async function callGroq(apiKey,url,content,objectType='site'){ let typeLabel={site:'Site/Landing Page', instagram:'Instagram'}[objectType]||objectType; let prompt=`Você é consultor estratégico. Analise este objeto (${typeLabel}): URL: ${url} CONTEÚDO: ${content}. Retorne APENAS JSON válido com estrutura: { "url":"${url}", "benchmark":"...", "total":(soma 0-100), "classification":"...", "summary":"...", "criteria":[{"name":"Clareza da Proposta de Valor","score":0-20,"max":20,"tip":"","desc":""}, ... igual para os 5 critérios: "Arquitetura de Funil / CTA","Prova Social e Credibilidade","Posicionamento de Nicho","Friction de Conversão"], "gaps":[["como está","como deve ser"] (5 pares)], "slides":[{"num":"01","elem":"","before":"","after":""}...5 itens], "recommendations":[{"n":"01","priority":"Prioridade Máxima","title":"","impact":"","desc":""}, ... 3 itens] } Use pt-BR.`; let res=await fetch('https://api.groq.com/openai/v1/chat/completions',{method:'POST',headers:{'Content-Type':'application/json','Authorization':`Bearer ${apiKey}`},body:JSON.stringify({model:'llama-3.3-70b-versatile',max_tokens:2500,temperature:0.3,messages:[{role:'user',content:prompt}]})}); if(!res.ok) throw new Error('Erro na API Groq'); let d=await res.json(); let txt=d.choices[0].message.content.trim().replace(/```json|```/g,''); return JSON.parse(txt); }
+const STEPS = ['Lendo conteúdo da URL...','Identificando segmento...','Aplicando framework PUV...','Calculando métricas...','Gerando slides...','Finalizando relatório...'];
+let stepIdx = 0;
+function cycleStep(){ const el = document.getElementById('loading-step'); if(el) el.textContent = STEPS[stepIdx%STEPS.length]; stepIdx++; }
 
-// Webhook fixo
-async function sendToSheets(payload){ if(!WEBHOOK_URL) return; try{ await fetch(WEBHOOK_URL,{method:'POST',mode:'no-cors',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)}); }catch(e){ console.warn('Webhook falhou (não crítico):', e.message); } }
+async function fetchContent(url){
+  // Check if content was captured via bookmarklet first
+  if(window._capturedContent && window._capturedContent.url === url){
+    console.log('✅ Usando conteúdo capturado via bookmarklet');
+    const content = window._capturedContent.content;
+    localStorage.removeItem('puvscore-captured');
+    window._capturedContent = null;
+    document.getElementById('captured-banner').style.display = 'none';
+    return content;
+  }
+  const PROXY_ERRORS = ['host not in allowlist','access denied','blocked','error fetching','not allowed','forbidden'];
+
+  const proxies = [
+    `https://api.allorigins.win/get?url=${encodeURIComponent(url)}`,
+    `https://corsproxy.io/?${encodeURIComponent(url)}`,
+    `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  ];
+
+  for(const p of proxies){
+    try{
+      const controller = new AbortController();
+      const timer = setTimeout(() => controller.abort(), 9000);
+      const r = await fetch(p, {signal: controller.signal});
+      clearTimeout(timer);
+      if(!r.ok) continue;
+
+      const d = await r.json().catch(()=>null);
+      const raw = d?.contents || await r.text().catch(()=>'');
+
+      // Detect proxy error messages
+      const rawLower = raw.toLowerCase().trim();
+      if(PROXY_ERRORS.some(e => rawLower.includes(e))) {
+        console.warn('Proxy retornou erro:', raw.substring(0,100));
+        continue;
+      }
+
+      // Strip HTML
+      const clean = raw
+        .replace(/<script[\s\S]*?<\/script>/gi,'')
+        .replace(/<style[\s\S]*?<\/style>/gi,'')
+        .replace(/<[^>]+>/g,' ')
+        .replace(/\s+/g,' ')
+        .trim();
+
+      // Minimum meaningful content
+      if(clean.length < 200){
+        console.warn('Conteúdo insuficiente:', clean.substring(0,100));
+        continue;
+      }
+
+      return clean.substring(0, 7000);
+
+    }catch(e){
+      console.warn('Proxy falhou:', e.message);
+    }
+  }
+
+  // All proxies failed — return clear signal to the AI
+  return `AVISO: O conteúdo de ${url} não pôde ser carregado pelos proxies disponíveis. 
+Analise APENAS com base na URL e domínio visível. 
+Seja CONSERVADOR nas pontuações (máximo 10 em cada critério sem conteúdo real).
+Indique claramente no summary que a análise é baseada apenas no domínio, não no conteúdo real da página.
+NÃO invente segmento, produtos ou textos que não foram confirmados.`;
+}
+
+async function callGroq(apiKey, url, content, objectType='site'){
+  const typeLabel = {site:'Site/Landing Page', instagram:'Perfil Instagram', youtube:'Canal YouTube'}[objectType] || objectType;
+
+  // Extract domain name for context
+  const domain = url.replace(/https?:\/\//,'').split('/')[0].replace('www.','');
+
+  const prompt = `Você é um consultor estratégico sênior de CRO da FNW Advisory & Partners, calibrado pelos frameworks da Nielsen Norman Group e CXL Institute.
+
+OBJETO A ANALISAR:
+Tipo: ${typeLabel}
+URL: ${url}
+Domínio: ${domain}
+CONTEÚDO CAPTURADO:
+---
+${content}
+---
+
+INSTRUÇÃO CRÍTICA — CONTEXTUALIZAÇÃO OBRIGATÓRIA:
+Toda a análise DEVE ser específica para "${domain}". É PROIBIDO escrever textos genéricos que poderiam servir para qualquer empresa.
+
+REGRAS DE CONTEXTUALIZAÇÃO:
+1. O "summary" DEVE mencionar o nome da marca/empresa, o segmento identificado e o problema específico encontrado no conteúdo capturado.
+2. Cada "desc" de critério DEVE citar elementos reais encontrados no conteúdo — textos, CTAs, estrutura, palavras-chave, produtos ou serviços mencionados.
+3. Os "gaps" DEVEM usar textos reais encontrados na página no campo "como está" — não descrições genéricas.
+4. Os "slides" DEVEM referenciar elementos reais — headline real, CTA real, seção real encontrada.
+5. As "recommendations" DEVEM mencionar "${domain}" e propor mudanças concretas nos elementos reais identificados.
+
+EXEMPLO DO QUE É PROIBIDO (genérico):
+- summary: "O site tem boa estrutura mas falta clareza na proposta de valor."
+- desc: "A página não comunica claramente os benefícios do produto."
+- gap before: "Falta proposta de valor clara"
+
+EXEMPLO DO QUE É OBRIGATÓRIO (específico):
+- summary: "A ${domain} atua no segmento de [X identificado no conteúdo] e apresenta [problema específico encontrado]. O gap principal está em [elemento real]."
+- desc: "A headline '[texto real encontrado]' não comunica o resultado concreto para o cliente. O CTA '[texto real do botão]' gera fricção porque [razão específica]."
+- gap before: "[texto real da headline/CTA/seção encontrado na página]"
+
+REGRAS DE PONTUAÇÃO — seja rigoroso:
+
+CRITÉRIO 1 — Clareza da Proposta de Valor (0–20):
+- 0–8: visitante não entende o que é em 5s. Sem headline clara.
+- 9–13: entende vagamente, sem resultado concreto.
+- 14–17: entende o benefício, falta diferencial.
+- 18–20: benefício + diferencial + prova em 5s. Raro.
+
+CRITÉRIO 2 — Arquitetura de Funil / CTA (0–20):
+- 0–8: sem CTA ou CTA genérico ("saiba mais", "clique aqui").
+- 9–13: CTA existe com alta fricção.
+- 14–17: CTA claro, sem micro-conversão.
+- 18–20: jornada guiada com CTAs progressivas. Raro.
+
+CRITÉRIO 3 — Prova Social e Credibilidade (0–20):
+- 0–8: zero prova social visível.
+- 9–13: números/depoimentos sem fonte ou data.
+- 14–17: depoimentos reais com fonte. Falta âncora metodológica.
+- 18–20: prova quantificada + autoridade + metodologia. Raro.
+
+CRITÉRIO 4 — Posicionamento de Nicho (0–20):
+- 0–8: fala com todos. Sem especialização.
+- 9–13: nicho implícito ou amplo.
+- 14–17: nicho declarado, diferencial fraco.
+- 18–20: nicho específico + diferencial único. Raro.
+
+CRITÉRIO 5 — Friction de Conversão (0–20):
+- 0–8: 5+ campos, UX confusa.
+- 9–13: 3–4 campos, sem progressive disclosure.
+- 14–17: 1–2 campos, CTA claro, sem eliminação de objeções.
+- 18–20: zero fricção, entrega imediata. Raro.
+
+A maioria dos objetos pontua entre 6 e 14. Scores acima de 16 devem ser raros e justificados com evidência do conteúdo.
+
+Retorne APENAS JSON válido (sem markdown):
+{
+  "url":"${url}",
+  "benchmark":"High-End Digital Positioning Framework (HEDPF) · FNW Advisory & Partners · [setor real de ${domain}]",
+  "total":[soma EXATA dos 5 scores],
+  "classification":"[Crítico 0-30 / Atenção 31-55 / Adequado 56-70 / Sólido 71-85 / Referência 86-100]",
+  "summary":"[2-3 linhas mencionando ${domain}, segmento identificado e problema específico encontrado no conteúdo — NUNCA genérico]",
+  "criteria":[
+    {"name":"Clareza da Proposta de Valor","score":[0-20],"max":20,"tip":"Visitante entende o produto e resultado em menos de 5 segundos?","desc":"[cite a headline real ou texto principal encontrado e explique o problema específico]"},
+    {"name":"Arquitetura de Funil / CTA","score":[0-20],"max":20,"tip":"Há jornada guiada do visitante frio até a conversão?","desc":"[cite o CTA real encontrado e o problema específico de fricção]"},
+    {"name":"Prova Social e Credibilidade","score":[0-20],"max":20,"tip":"Depoimentos, dados e autoridade são verificáveis?","desc":"[cite o que existe ou ausência específica de prova social no conteúdo]"},
+    {"name":"Posicionamento de Nicho","score":[0-20],"max":20,"tip":"Nicho específico + diferencial competitivo declarado?","desc":"[cite o segmento real identificado e o diferencial ou sua ausência]"},
+    {"name":"Friction de Conversão","score":[0-20],"max":20,"tip":"Qual o esforço real exigido do usuário para converter?","desc":"[descreva os elementos de fricção reais encontrados — campos, passos, ambiguidades]"}
+  ],
+  "gaps":[
+    ["[texto/elemento real encontrado na página]","[versão otimizada concreta]"],
+    ["[texto/elemento real]","[versão otimizada]"],
+    ["[texto/elemento real]","[versão otimizada]"],
+    ["[texto/elemento real]","[versão otimizada]"],
+    ["[texto/elemento real]","[versão otimizada]"]
+  ],
+  "slides":[
+    {"num":"01","elem":"[nome do elemento real: headline, CTA, seção]","before":"[texto/estado real encontrado]","after":"[versão otimizada concreta com copy sugerido]"},
+    {"num":"02","elem":"[elemento real]","before":"[estado real]","after":"[otimizado]"},
+    {"num":"03","elem":"[elemento real]","before":"[estado real]","after":"[otimizado]"},
+    {"num":"04","elem":"[elemento real]","before":"[estado real]","after":"[otimizado]"},
+    {"num":"05","elem":"[elemento real]","before":"[estado real]","after":"[otimizado]"}
+  ],
+  "recommendations":[
+    {"n":"01","priority":"Prioridade Máxima","title":"[ação específica para ${domain}]","impact":"[métrica específica e como medir]","desc":"[3-4 linhas citando elementos reais de ${domain} e propondo mudança concreta]"},
+    {"n":"02","priority":"Alta Prioridade","title":"[ação específica]","impact":"[métrica]","desc":"[3-4 linhas específicas para ${domain}]"},
+    {"n":"03","priority":"Alta Prioridade","title":"[ação específica]","impact":"[métrica]","desc":"[3-4 linhas específicas para ${domain}]"}
+  ]
+}`;
+
+  const raw = await iaKit.chamar(prompt);
+  return iaKit.parseJSON(raw);
+}
+
+async function sendToSheets(payload){
+  // URL do Apps Script — webhook operador (não exposto na UI)
+  // Planilha: configurada por você em script.google.com
+  if(!WEBHOOK_URL) return;
+  try{
+    await fetch(WEBHOOK_URL, {
+      method:'POST',
+      mode:'no-cors', // necessário para Apps Script — resposta não é lida mas o POST chega
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    console.log('✅ Lead enviado para Sheets:', payload.email || payload.url);
+  }catch(e){
+    console.warn('⚠️ Webhook falhou (não crítico — lead salvo localmente):', e.message);
+  }
+}
 
 async function startAnalysis(){
-  let url=document.getElementById('url-input').value.trim(), apiKey=document.getElementById('api-key')?.value.trim(), lead=getLeadData(); setError(''); if(!url) return setError('Cole uma URL.'); if(!url.startsWith('http')) return setError('URL inválida.'); if(!apiKey) return setError('Configure API Key em Configurações.');
-  document.getElementById('btn-analyze').disabled=true; stepIdx=0; cycleStep(); showScreen('screen-loading'); if(currentStepInterval) clearInterval(currentStepInterval); currentStepInterval=setInterval(cycleStep,2000);
-  try{ let content=await fetchContent(url); document.getElementById('loading-step').innerText='IA processando a análise...'; let result=await callGroq(apiKey,url,content,selectedType); result._lead=lead; result._type=selectedType; clearInterval(currentStepInterval); let leadPayload={ts:new Date().toISOString(),name:lead.name,email:lead.email,company:lead.company,url:url,type:selectedType,score:result.total,classification:result.classification}; let leads=JSON.parse(localStorage.getItem('puvscore-leads')||'[]'); leads.push(leadPayload); localStorage.setItem('puvscore-leads',JSON.stringify(leads)); sendToSheets(leadPayload); renderReport(result);
-  }catch(err){ clearInterval(currentStepInterval); showScreen('screen-input'); setError('Erro: '+err.message); }finally{ document.getElementById('btn-analyze').disabled=false; }
+  const url    = document.getElementById('url-input').value.trim();
+  const apiKey = iaKit.getGroqKey() || iaKit.getOpenRouterKey(); // compatibilidade
+  const lead   = getLeadData();
+  setError('');
+  if(!url)                    return setError('Cole uma URL para analisar.');
+  if(!url.startsWith('http')) return setError('URL inválida. Inclua https://');
+  if(!apiKey && !iaKit.getOpenRouterKey()) return setError('Configure sua chave de IA em ⚙ Configurações → Configuração de IA.');
+
+  document.getElementById('btn-analyze').disabled = true;
+  stepIdx = 0; cycleStep();
+  showScreen('screen-loading');
+  if(currentStepInterval) clearInterval(currentStepInterval);
+  currentStepInterval = setInterval(cycleStep, 2000);
+
+  try{
+    const content = await fetchContent(url);
+    const contentFailed = content.startsWith('AVISO:');
+
+    // Show warning to user if content failed
+    if(contentFailed){
+      document.getElementById('loading-step').textContent = '⚠️ Conteúdo não acessível — análise parcial...';
+    } else {
+      document.getElementById('loading-step').textContent = 'IA processando a análise...';
+    }
+    const result = await callGroq(apiKey, url, content, selectedType);
+    result._lead = lead;
+    result._type = selectedType;
+    result._contentFailed = contentFailed;
+    clearInterval(currentStepInterval);
+
+    const leadPayload = {
+      ts:             new Date().toISOString(),
+      name:           lead.name,
+      email:          lead.email,
+      company:        lead.company,
+      url:            url,
+      type:           selectedType,
+      score:          result.total,
+      classification: result.classification,
+      benchmark:      result.benchmark,
+      summary:        result.summary,
+    };
+    const leads = JSON.parse(localStorage.getItem('puvscore-leads')||'[]');
+    leads.push(leadPayload);
+    localStorage.setItem('puvscore-leads', JSON.stringify(leads));
+    sendToSheets(leadPayload);
+
+    renderReport(result);
+  }catch(err){
+    clearInterval(currentStepInterval);
+    showScreen('screen-input');
+    setError('Erro: ' + (err.message || 'Tente novamente.'));
+  }finally{
+    document.getElementById('btn-analyze').disabled = false;
+  }
 }
-function requestPDF(mode){ let data=window.currentData||{},url=data.url||'',score=data.total||'',lead=data._lead||{},msgs={proprio:`Olá! Análise PUV Score para ${url} (score ${score}/100) gostaria do PDF para implementar.`,agencia:`Olá! Gostaria do PDF + briefing para minha agência.`,assessoria:`Olá! Tenho interesse na assessoria especializada.`}; let nome=lead.name?` Me chamo ${lead.name}.`:''; window.open(`https://wa.me/5511911595028?text=${encodeURIComponent(msgs[mode]+nome)}`,'_blank'); }
-function saveApiKey(v){ localStorage.setItem('puvscore-apikey',v); }
-function loadApiKey(){ let k=localStorage.getItem('puvscore-apikey')||''; let el=document.getElementById('api-key'); if(el&&k) el.value=k; }
-function goBack(){ showScreen('screen-input'); window.currentData=null; }
-function loadDemo(){ renderReport(DEMO); }
-window.addEventListener('DOMContentLoaded',()=>{ loadApiKey(); document.getElementById('url-input')?.addEventListener('keydown',e=>{ if(e.key==='Enter') startAnalysis(); }); });
+
+function requestPDF(mode){
+  const data = window.currentData || {};
+  const url = data.url || '', score = data.total || '', lead = data._lead || {};
+  const msgs = {
+    proprio:    `Olá! Rodei a Análise PUV Score para ${url} (score ${score}/100) e gostaria de receber o relatório completo em PDF para implementar por conta própria.`,
+    agencia:    `Olá! Rodei a Análise PUV Score para ${url} (score ${score}/100) e gostaria do PDF completo + briefing para passar para minha agência.`,
+    assessoria: `Olá! Rodei a Análise PUV Score para ${url} (score ${score}/100) e tenho interesse em contratar a assessoria especializada.`,
+  };
+  const nome = lead.name ? ` Me chamo ${lead.name}.` : '';
+  window.open(`https://wa.me/5511911595028?text=${encodeURIComponent(msgs[mode]+nome)}`, '_blank');
+}
+
+const INTERNAL_PWD = '1234';
+let pwdGranted = false;
+
+function checkPassword(){
+  if(pwdGranted) return true;
+  const pwd = prompt('🔒 Acesso interno FNW — digite a senha:');
+  if(pwd === INTERNAL_PWD){ pwdGranted = true; return true; }
+  if(pwd !== null) alert('Senha incorreta.');
+  return false;
+}
+
+function fileSlug(){
+  const url = window.currentData?.url || 'analise';
+  return url.replace(/https?:\/\//,'').replace(/[^a-z0-9]/gi,'-').replace(/-+/g,'-').replace(/^-|-$/g,'').substring(0,40);
+}
+
+function gatedAction(type){
+  if(!checkPassword()) return;
+  if(type === 'pdf'){
+    window.print();
+  } else if(type === 'pdf-view'){
+    window.print();
+  } else if(type === 'json'){
+    if(!window.currentData) return;
+    const blob = new Blob([JSON.stringify(window.currentData, null, 2)], {type:'application/json'});
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = `puvscore-${fileSlug()}.json`;
+    a.click();
+  } else if(type === 'json-view'){
+    if(!checkPassword()) return;
+    const viewer = document.getElementById('json-viewer');
+    const isOpen = viewer.style.display !== 'none';
+    viewer.style.display = isOpen ? 'none' : 'block';
+    if(!isOpen && window.currentData){
+      document.getElementById('json-content').textContent =
+        JSON.stringify(window.currentData, null, 2);
+    }
+  }
+}
+
+function toggleJSON(){
+  if(!checkPassword()) return;
+  const viewer = document.getElementById('json-viewer');
+  const btn = document.getElementById('json-toggle-btn');
+  const isOpen = viewer.style.display !== 'none';
+  viewer.style.display = isOpen ? 'none' : 'block';
+  btn.textContent = isOpen ? '{ } Ver JSON da análise' : '{ } Fechar JSON';
+  if(!isOpen && window.currentData){
+    document.getElementById('json-content').textContent =
+      JSON.stringify(window.currentData, null, 2);
+  }
+}
+
+function copyJSON(){
+  if(!window.currentData) return;
+  navigator.clipboard.writeText(JSON.stringify(window.currentData, null, 2))
+    .then(() => {
+      const btn = document.querySelector('#json-viewer button');
+      btn.textContent = '✅ Copiado!';
+      setTimeout(() => btn.textContent = 'Copiar', 2000);
+    });
+}
+
+function toggleHow(idx){
+  if(!checkPassword()) return;
+  const box = document.getElementById(`how-${idx}`);
+  const isOpen = box.style.display !== 'none';
+  box.style.display = isOpen ? 'none' : 'block';
+  if(!isOpen){
+    const content = document.getElementById(`how-content-${idx}`);
+    content.innerHTML = `<div style="font-size:.78rem;color:var(--text2);line-height:1.6;padding:.25rem 0">
+      💡 Para o plano detalhado com passos específicos para <strong>${window.currentData?.url||'este objeto'}</strong>, 
+      acesse a seção <strong>07 · Plano de Implementação</strong> abaixo — gerado por IA com contexto completo da análise.
+    </div>`;
+  }
+}
+
+
+function saveObs(idx, value){
+  if(!window.currentData) return;
+  if(!window.currentData._clientObs) window.currentData._clientObs = [];
+  window.currentData._clientObs[idx] = value;
+}
+
+async function showPlan(){
+  if(!checkPassword()) return;
+  document.getElementById('plan-lock').style.display = 'none';
+  document.getElementById('plan-content').style.display = 'block';
+  await generatePlanWithAI();
+}
+
+async function refreshPlan(){
+  if(!checkPassword()) return;
+  await generatePlanWithAI();
+}
+
+async function generatePlanWithAI(){
+  const apiKey = iaKit.getOpenRouterKey() || iaKit.getGroqKey();
+  if(!apiKey){ alert('Configure sua chave de IA em ⚙ Configurações para gerar o plano.'); return; }
+
+  const data = window.currentData;
+  if(!data) return;
+
+  // Collect current observations
+  const obs = data.recommendations.map((_,i) => {
+    const el = document.getElementById(`obs-${i}`);
+    return el ? el.value.trim() : (data._clientObs?.[i] || '');
+  });
+  data._clientObs = obs;
+
+  document.getElementById('plan-loading').style.display = 'block';
+  document.getElementById('plan-table-wrap').style.display = 'none';
+
+  const obsContext = obs.some(o=>o) ?
+    `\nOBSERVAÇÕES DA CONVERSA COM O CLIENTE:\n${obs.map((o,i)=> o ? `- Recomendação ${i+1}: ${o}` : '').filter(Boolean).join('\n')}` : '';
+
+  const prompt = `Você é um consultor sênior de CRO da FNW Advisory & Partners entregando um plano de implementação para um cliente.
+
+CONTEXTO DA ANÁLISE:
+Objeto: ${data.url}
+Score: ${data.total}/100 — ${data.classification}
+Resumo: ${data.summary}
+
+CRITÉRIOS:
+${data.criteria.map(c=>`- ${c.name} (${c.score}/${c.max}): ${c.desc}`).join('\n')}
+
+GAPS:
+${data.gaps.map(g=>`- Atual: "${g[0]}" → Deve ser: "${g[1]}"`).join('\n')}
+
+RECOMENDAÇÕES:
+${data.recommendations.map(r=>`${r.n}. ${r.title} | ${r.desc}`).join('\n')}
+${obsContext}
+
+REGRA CRÍTICA DOS PASSOS — siga rigorosamente:
+Cada passo DEVE começar com um verbo de execução concreto e descrever EXATAMENTE o que fazer.
+PROIBIDO usar: "Analisar", "Desenvolver", "Criar", "Identificar", "Considerar", "Garantir", "Verificar".
+OBRIGATÓRIO usar: "Acesse", "Abra", "Escreva", "Cole", "Substitua", "Configure", "Teste", "Instale", "Publique", "Envie", "Grave", "Meça", "Compare", "Remova", "Adicione", "Mova", "Copie".
+
+EXEMPLO DO QUE NÃO FAZER (genérico e inútil):
+"Analisar os produtos e serviços e identificar os benefícios únicos"
+
+EXEMPLO DO QUE FAZER (concreto e acionável):
+"Abra ${data.url} no celular e grave um vídeo de 60 segundos navegando como um visitante frio. Envie para 3 pessoas e peça: 'O que essa empresa faz? Para quem? Você clicaria no botão?' Anote as respostas."
+
+Outro exemplo concreto:
+"Escreva a nova headline no formato: [Resultado que o cliente quer] + [em quanto tempo] + [sem o que]. Ex: 'Agende 3x mais pacientes em 30 dias — sem precisar de equipe de marketing.' Teste com 5 pessoas do público-alvo antes de publicar."
+
+Retorne APENAS JSON válido:
+{
+  "plan": [
+    {
+      "n": "01",
+      "titulo": "[título da recomendação — igual ao original]",
+      "impacto": "[métrica específica de sucesso e como medir]",
+      "passos": [
+        "[Verbo de execução] + [o que exatamente fazer] + [onde/como] + [resultado esperado deste passo]",
+        "[Verbo] + [ação concreta específica para ${data.url}]",
+        "[Verbo] + [ação com ferramenta específica e configuração]",
+        "[Verbo] + [como testar se funcionou — métrica e prazo]",
+        "[Verbo] + [próximo passo após validação]"
+      ],
+      "ferramenta": "[ferramentas específicas com link ou nome exato]",
+      "prazo": "[X dias/semanas — realista]",
+      "responsavel": "[cargo específico]",
+      "obs_cliente": "${obs[0]||''}"
+    },
+    { "n": "02", "titulo": "...", "impacto": "...", "passos": ["...","...","...","...","..."], "ferramenta": "...", "prazo": "...", "responsavel": "...", "obs_cliente": "${obs[1]||''}" },
+    { "n": "03", "titulo": "...", "impacto": "...", "passos": ["...","...","...","...","..."], "ferramenta": "...", "prazo": "...", "responsavel": "...", "obs_cliente": "${obs[2]||''}" }
+  ]
+}`;
+
+  try {
+    const raw = await iaKit.chamar(prompt);
+    const planData = iaKit.parseJSON(raw);
+    renderPlanTable(planData.plan, obs);
+  } catch(e) {
+    document.getElementById('plan-loading').style.display = 'none';
+    document.getElementById('plan-table-wrap').style.display = 'block';
+    document.getElementById('plan-tbody').innerHTML = `<tr><td colspan="5" style="padding:1rem;color:var(--danger);font-size:.82rem">Erro ao gerar plano: ${e.message}</td></tr>`;
+  }
+}
+
+function renderPlanTable(plan, obs){
+  document.getElementById('plan-loading').style.display = 'none';
+  document.getElementById('plan-table-wrap').style.display = 'block';
+  const tbody = document.getElementById('plan-tbody');
+  tbody.innerHTML = plan.map((r, i) => {
+    const obsText = obs[i] || r.obs_cliente || '';
+    const obsBlock = obsText ? `<div style="margin-top:.6rem;padding:.5rem .75rem;background:rgba(221,181,90,.08);border-left:3px solid var(--gold);border-radius:0 4px 4px 0;font-size:.74rem;color:var(--gold);line-height:1.5"><strong>📝 Cliente:</strong> ${obsText}</div>` : '';
+    return `<tr style="border-bottom:1px solid var(--border);vertical-align:top">
+      <td style="padding:.9rem .75rem;font-family:var(--syne);font-weight:800;color:var(--accent);font-size:1.1rem;white-space:nowrap">${r.n}</td>
+      <td style="padding:.9rem .75rem;min-width:150px">
+        <div style="font-weight:600;color:var(--text);margin-bottom:.3rem;line-height:1.4;font-size:.82rem">${r.titulo}</div>
+        <div style="font-size:.7rem;color:var(--accent);margin-bottom:.4rem">${r.impacto}</div>
+        <div style="font-size:.68rem;color:var(--warn);font-weight:600">${r.prazo}</div>
+        <div style="font-size:.65rem;color:var(--muted);margin-top:.2rem">${r.responsavel}</div>
+      </td>
+      <td style="padding:.9rem .75rem;min-width:280px">
+        ${(r.passos||[]).map((p,j)=>`<div style="display:flex;gap:.5rem;margin-bottom:.55rem;font-size:.78rem;color:var(--text2);line-height:1.55">
+          <span style="font-family:var(--syne);font-weight:800;color:var(--accent);flex-shrink:0;min-width:16px">${j+1}.</span>
+          <span>${p}</span>
+        </div>`).join('')}
+        ${obsBlock}
+      </td>
+      <td style="padding:.9rem .75rem;font-size:.72rem;color:var(--muted);min-width:130px;line-height:1.6">${r.ferramenta}</td>
+      <td style="padding:.9rem .75rem;font-size:.72rem;color:var(--warn);font-weight:600;white-space:nowrap">${r.prazo}</td>
+    </tr>`;
+  }).join('');
+}
+
+// ── FNW IA Kit v1.0 (integrado ao PUV Score) ─────────────────────────────────
+const iaKit = (() => {
+  const PREFIX = 'puvscore-ia';
+  const get = k => { try { return localStorage.getItem(`${PREFIX}-${k}`) || ''; } catch(e) { return ''; } };
+  const set = (k, v) => { try { localStorage.setItem(`${PREFIX}-${k}`, v); } catch(e) {} };
+
+  function getOpenRouterKey() { return get('openrouter'); }
+  function getGroqKey()       { return get('groq') || localStorage.getItem('puvscore-apikey') || ''; }
+  function getModelo()        { return get('modelo') || 'openrouter/free'; }
+  function getUltimoModelo()  { return window._iaKitUltimoModelo || '—'; }
+
+  function salvarOpenRouterKey(){
+    const k = document.getElementById('ia-openrouter-key')?.value.trim() || '';
+    set('openrouter', k);
+    const st = document.getElementById('ia-openrouter-status');
+    if(st){ st.textContent = k ? '✓ Salva' : '—'; st.className = 'ia-key-st ' + (k ? 'ok' : ''); }
+  }
+  function salvarGroqKey(){
+    const k = document.getElementById('ia-groq-key')?.value.trim() || '';
+    set('groq', k);
+    localStorage.setItem('puvscore-apikey', k); // compatibilidade
+    const st = document.getElementById('ia-groq-status');
+    if(st){ st.textContent = k ? '✓ Salva' : '—'; st.className = 'ia-key-st ' + (k ? 'ok' : ''); }
+  }
+  function salvarModelo(){
+    const m = document.getElementById('ia-modelo-select')?.value || 'openrouter/free';
+    set('modelo', m);
+  }
+  function carregar(){
+    const or = getOpenRouterKey();
+    if(or){ const el=document.getElementById('ia-openrouter-key'); if(el) el.value=or; const st=document.getElementById('ia-openrouter-status'); if(st){st.textContent='✓ Salva';st.className='ia-key-st ok';} }
+    const gk = getGroqKey();
+    if(gk){ const el=document.getElementById('ia-groq-key'); if(el) el.value=gk; const st=document.getElementById('ia-groq-status'); if(st){st.textContent='✓ Salva';st.className='ia-key-st ok';} }
+    const m = getModelo();
+    const sel = document.getElementById('ia-modelo-select');
+    if(sel) sel.value = m;
+  }
+  function parseJSON(str){
+    if(!str) throw new Error('Resposta vazia da IA.');
+    try { return JSON.parse(str); } catch(e) {}
+    let s = str.replace(/```json\s*/gi,'').replace(/```\s*/g,'').trim();
+    try { return JSON.parse(s); } catch(e) {}
+    const m = s.match(/(\{[\s\S]*\}|\[[\s\S]*\])/);
+    if(m) try { return JSON.parse(m[1]); } catch(e) {}
+    const blocks = s.match(/\{[\s\S]*?\}/g) || [];
+    for(let i=blocks.length-1;i>=0;i--){ try { return JSON.parse(blocks[i]); } catch(e) {} }
+    throw new Error('A IA não retornou JSON válido. Tente reformular ou trocar de modelo.');
+  }
+  async function chamar(prompt){
+    const orKey = getOpenRouterKey();
+    const groqKey = getGroqKey();
+    if(!orKey && !groqKey) throw new Error('Configure a chave em ⚙ Configurações → Configuração de IA.');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 30000);
+    try {
+      if(orKey){
+        const modelo = getModelo();
+        const r = await fetch('https://openrouter.ai/api/v1/chat/completions',{
+          method:'POST', signal:controller.signal,
+          headers:{'Authorization':`Bearer ${orKey}`,'Content-Type':'application/json','HTTP-Referer':window.location.origin,'X-Title':'PUV Score'},
+          body:JSON.stringify({model:modelo,temperature:0.3,max_tokens:3000,messages:[{role:'user',content:prompt}]})
+        });
+        if(!r.ok){ const err=await r.json().catch(()=>({})); throw new Error(`OpenRouter ${r.status}: ${err.error?.message||''}`); }
+        const d = await r.json();
+        const content = d.choices?.[0]?.message?.content || null;
+        if(!content) throw new Error('Resposta vazia. Tente outro modelo.');
+        window._iaKitUltimoModelo = d.model || modelo;
+        return content;
+      } else {
+        const r = await fetch('https://api.groq.com/openai/v1/chat/completions',{
+          method:'POST', signal:controller.signal,
+          headers:{'Authorization':`Bearer ${groqKey}`,'Content-Type':'application/json'},
+          body:JSON.stringify({model:'llama-3.3-70b-versatile',temperature:0.3,max_tokens:3000,messages:[{role:'user',content:prompt}]})
+        });
+        if(!r.ok) throw new Error(`Groq ${r.status}`);
+        const d = await r.json();
+        const content = d.choices?.[0]?.message?.content || null;
+        if(!content) throw new Error('Resposta vazia do Groq.');
+        window._iaKitUltimoModelo = 'groq/llama-3.3-70b';
+        return content;
+      }
+    } catch(e){
+      if(e.name==='AbortError') throw new Error('Tempo esgotado (30s). Tente Auto ou outro modelo.');
+      throw e;
+    } finally { clearTimeout(timeout); }
+  }
+  return { chamar, parseJSON, carregar, salvarOpenRouterKey, salvarGroqKey, salvarModelo, getUltimoModelo, getGroqKey, getOpenRouterKey };
+})();
+function initBookmarklet(){
+  const puvUrl = window.location.href.split('#')[0].split('?')[0];
+
+  // Hardcoded minified bookmarklet — no serialization tricks
+  const bm = [
+    'javascript:(function(){',
+    'var u=location.href;',
+    'var t=document.body.innerText||"";',
+    't=t.replace(/\\s+/g," ").trim().slice(0,5000);',
+    'if(t.length<100){alert("Pagina sem conteudo.");return;}',
+    'var d={url:u,content:t,ts:+new Date()};',
+    'var b=btoa(unescape(encodeURIComponent(JSON.stringify(d))));',
+    'location.href="', puvUrl, '#captured="+b;',
+    '})()'
+  ].join('');
+
+  window._bookmarkletCode = bm;
+
+  const link = document.getElementById('bookmarklet-link');
+  const area = document.getElementById('bm-code-area');
+  if(area) area.value = bm;
+
+  if(link){
+    link.href = bm;
+    link.addEventListener('click', e => {
+      e.preventDefault();
+      const row = document.getElementById('bm-copy-row');
+      if(row) row.style.display = 'flex';
+    });
+  }
+}
+
+function copyBookmarklet(){
+  const area = document.getElementById('bm-code-area');
+  if(!area) return;
+  area.select();
+  navigator.clipboard.writeText(area.value).then(() => {
+    const btn = document.querySelector('#bm-copy-row button');
+    if(btn){ btn.textContent = '✅ Copiado!'; setTimeout(()=>btn.textContent='Copiar',2000); }
+  }).catch(() => {
+    document.execCommand('copy');
+  });
+}
+
+function checkCapturedContent(){
+  // Check URL hash for captured content (from bookmarklet)
+  const hash = window.location.hash;
+  if(!hash.startsWith('#captured=')) return;
+
+  try{
+    const encoded = hash.replace('#captured=','');
+    const decoded = decodeURIComponent(escape(atob(encoded)));
+    const captured = JSON.parse(decoded);
+
+    // Validate freshness (10 min)
+    if(Date.now() - captured.ts > 10 * 60 * 1000) return;
+
+    // Pre-fill URL
+    const urlInput = document.getElementById('url-input');
+    if(urlInput && captured.url) urlInput.value = captured.url;
+
+    // Show banner
+    const banner = document.getElementById('captured-banner');
+    const label = document.getElementById('captured-url-label');
+    if(banner){
+      banner.style.display = 'flex';
+      if(label) label.textContent = captured.url;
+    }
+
+    // Store for use in startAnalysis
+    window._capturedContent = captured;
+
+    // Clean hash from URL without reload
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+
+    console.log('✅ Conteúdo capturado via bookmarklet:', captured.url, `(${captured.content.length} chars)`);
+  }catch(e){
+    console.warn('Erro ao ler conteúdo capturado:', e);
+  }
+}
+
+function clearCaptured(){
+  window._capturedContent = null;
+  const banner = document.getElementById('captured-banner');
+  if(banner) banner.style.display = 'none';
+  document.getElementById('url-input').value = '';
+  history.replaceState(null, '', window.location.pathname + window.location.search);
+}
+
+function toggleAccordion(){
+  const body = document.getElementById('accordion-body');
+  const icon = document.getElementById('accordion-icon');
+  const open = body.style.display !== 'none';
+  body.style.display = open ? 'none' : 'block';
+  icon.style.transform = open ? '' : 'rotate(180deg)';
+}
+
+function saveApiKey(v){ localStorage.setItem('puvscore-apikey', v); }
+
+function requestDemoConversion(){
+  const msg = encodeURIComponent(
+    `Olá! Acabei de ver a demonstração do PUV Score e quero solicitar a análise real da minha presença digital.\n\n` +
+    `Podem me passar mais informações sobre como funciona e o investimento?`
+  );
+  window.open(`https://wa.me/5511911595028?text=${msg}`, '_blank');
+}
+
+function requestAudit(){
+  const data = window.currentData || {};
+  const url = data.url || '';
+  const score = data.total || '';
+  const classification = data.classification || '';
+  const lead = data._lead || {};
+  const nome = lead.name ? `Me chamo ${lead.name}.` : '';
+  const empresa = lead.company ? ` Empresa: ${lead.company}.` : '';
+  const msg = `Olá! Acabei de rodar o PUV Score para *${url}*.
+
+📊 *Score:* ${score}/100 — ${classification}
+
+Gostaria de solicitar o *PUV Audit* — a revisão humana especializada completa, com análise aprofundada e plano de implementação personalizado.
+
+${nome}${empresa}
+
+Podem me passar mais informações sobre o processo e investimento?`;
+  window.open(`https://wa.me/5511911595028?text=${encodeURIComponent(msg)}`, '_blank');
+}
+function loadApiKey(){ const k = localStorage.getItem('puvscore-apikey')||''; const el = document.getElementById('api-key'); if(el && k) el.value = k; }
+// ── DEMO LOADING ─────────────────────────────────────────────────────────────
+const DEMO_LOADING_SECONDS = 14; // ← duração do loading após clicar Analisar
+const DEMO_URL_DISPLAY = 'https://puv-score.vercel.app'; // ← URL da demo
+const DEMO_TYPE = 'site'; // ← tipo selecionado na demo
+
+const DEMO_STEPS = [
+  'Lendo conteúdo da URL...',
+  'Identificando segmento e mercado...',
+  'Aplicando framework PUV Score...',
+  'Calculando métricas por critério...',
+  'Gerando slides Antes & Depois...',
+  'Finalizando relatório...',
+];
+
+function loadDemo(){
+  // Apply any saved URLs to demo data objects
+  DEMO_SITE.url      = demoUrls.site;
+  DEMO_INSTAGRAM.url = demoUrls.instagram;
+  updateDemoLabels();
+  showScreen('screen-demo-choice');
+}
+
+function startDemo(type){
+  const defaults = {
+    site:      'https://puv-score.vercel.app',
+    instagram: 'https://instagram.com/bio.tq',
+  };
+  const currentUrl = demoUrls[type] || demoUrls.site;
+  const isDefault  = defaults[type] && currentUrl === defaults[type];
+
+  // youtube always runs real analysis; site/instagram use hardcoded if default
+  if(isDefault){
+    _runDemoSimulation(type, currentUrl, type === 'instagram' ? DEMO_INSTAGRAM : DEMO_SITE);
+  } else {
+    _runDemoSimulation(type, currentUrl, null);
+  }
+}
+
+async function _runDemoSimulation(type, demoUrl, demoData){
+  const urlInput    = document.getElementById('url-input');
+  const nameInput   = document.getElementById('lead-name');
+  const emailInput  = document.getElementById('lead-email');
+  const companyInput= document.getElementById('lead-company');
+  const analyzeBtn  = document.getElementById('btn-analyze');
+  const typeGrid    = document.querySelector('.type-grid');
+  const typeBtn     = document.getElementById('type-' + type);
+
+  showScreen('screen-input');
+  document.querySelectorAll('.type-btn:not(.coming-soon)').forEach(b => b.classList.remove('active'));
+  if(urlInput)     urlInput.value = '';
+  if(nameInput)    nameInput.value = '';
+  if(emailInput)   emailInput.value = '';
+  if(companyInput) companyInput.value = '';
+
+  function highlight(el, on){ if(!el) return; el.style.transition='box-shadow .3s'; el.style.boxShadow=on?'0 0 0 3px var(--accent), 0 0 16px rgba(0,224,255,.3)':''; }
+  function scrollToCenter(el){ if(el) el.scrollIntoView({behavior:'smooth', block:'center'}); }
+
+  let toastEl = document.getElementById('demo-toast');
+  if(!toastEl){
+    toastEl = document.createElement('div');
+    toastEl.id = 'demo-toast';
+    toastEl.style.cssText = 'position:fixed;top:1.25rem;left:50%;transform:translateX(-50%);background:var(--surface);border:1.5px solid var(--accent-bdr);border-radius:30px;padding:.5rem 1.25rem;font-size:.8rem;font-weight:600;color:var(--accent);box-shadow:0 8px 24px rgba(0,0,0,.3);z-index:2000;pointer-events:none;opacity:0;transition:opacity .3s;white-space:nowrap;';
+    document.body.appendChild(toastEl);
+  }
+  function showToast(msg){ toastEl.textContent=msg; toastEl.style.opacity='1'; }
+  function hideToast(){ toastEl.style.opacity='0'; }
+
+  function typeInto(el, text, duration){
+    return new Promise(resolve => {
+      const delay = duration / text.length;
+      let i = 0;
+      const iv = setInterval(() => {
+        if(i < text.length){ el.value = text.substring(0, i+1); i++; }
+        else { clearInterval(iv); resolve(); }
+      }, delay);
+    });
+  }
+
+  let t = 0;
+
+  // Step 1 — type selector
+  setTimeout(() => { showToast('① Escolha o tipo de análise'); scrollToCenter(typeGrid); highlight(typeGrid, true); }, t += 600);
+  setTimeout(() => { highlight(typeGrid, false); if(typeBtn){ scrollToCenter(typeBtn); typeBtn.classList.add('active'); highlight(typeBtn,true); typeBtn.style.transform='scale(1.08)'; setTimeout(()=>{typeBtn.style.transform='';highlight(typeBtn,false);},400); } }, t += 2400);
+
+  // Step 2 — URL
+  setTimeout(() => { showToast('② Cole a URL que quer analisar'); scrollToCenter(urlInput); highlight(urlInput, true); }, t += 1200);
+  setTimeout(async () => { await typeInto(urlInput, demoUrl, 2800); highlight(urlInput, false); }, t += 400);
+
+  // Step 3 — lead form: name
+  setTimeout(() => { showToast('③ Digite seu nome'); scrollToCenter(nameInput); highlight(nameInput, true); }, t += 3200);
+  setTimeout(async () => { await typeInto(nameInput, 'Maria Silva', 1200); highlight(nameInput, false); }, t += 400);
+
+  // Step 4 — email
+  setTimeout(() => { showToast('④ Digite seu WhatsApp ou email'); scrollToCenter(emailInput); highlight(emailInput, true); }, t += 1600);
+  setTimeout(async () => { await typeInto(emailInput, 'maria@agencia.com.br', 1400); highlight(emailInput, false); }, t += 400);
+
+  // Step 5 — company
+  setTimeout(() => { showToast('⑤ Digite sua empresa'); scrollToCenter(companyInput); highlight(companyInput, true); }, t += 1800);
+  setTimeout(async () => { await typeInto(companyInput, 'Agência Criativa', 1000); highlight(companyInput, false); }, t += 400);
+
+  // Step 6 — analyze button
+  setTimeout(() => { showToast('⑥ Clique em Analisar'); scrollToCenter(analyzeBtn); highlight(analyzeBtn, true); }, t += 1400);
+  setTimeout(() => { hideToast(); highlight(analyzeBtn,false); if(analyzeBtn){ analyzeBtn.style.transform='scale(0.95)'; analyzeBtn.style.opacity='0.8'; setTimeout(()=>{analyzeBtn.style.transform='';analyzeBtn.style.opacity='';},200); } }, t += 1800);
+
+  setTimeout(async () => {
+    // Hide demo toast before loading
+    const t = document.getElementById('demo-toast');
+    if(t) t.style.opacity = '0';
+    showScreen('screen-loading');
+    const lc = document.querySelector('.loading-center');
+    let ud = document.getElementById('demo-url-display');
+    if(!ud){ ud=document.createElement('div'); ud.id='demo-url-display'; ud.style.cssText='margin:.75rem auto 0;font-family:monospace;font-size:.82rem;color:var(--accent);background:var(--card2);border:1px solid var(--border);border-radius:8px;padding:.5rem 1rem;max-width:320px;display:flex;align-items:center;gap:2px;'; lc.appendChild(ud); }
+    ud.innerHTML = demoUrl + '<span style="display:inline-block;width:2px;height:1em;background:var(--accent);animation:fpulse .6s ease-in-out infinite;vertical-align:middle;margin-left:1px"></span>';
+
+    let si=0; const stepEl=document.getElementById('loading-step'); if(stepEl) stepEl.textContent=DEMO_STEPS[0];
+    const iv=setInterval(()=>{ si=(si+1)%DEMO_STEPS.length; if(stepEl) stepEl.textContent=DEMO_STEPS[si]; },(DEMO_LOADING_SECONDS*1000)/DEMO_STEPS.length);
+
+    if(demoData){
+      // Hardcoded demo — mark as simulation
+      demoData._isDemo = true;
+      setTimeout(()=>{ clearInterval(iv); if(ud) ud.remove(); renderReport(demoData); }, DEMO_LOADING_SECONDS*1000);
+    } else {
+      // Real Groq analysis
+      const apiKey = iaKit.getOpenRouterKey() || iaKit.getGroqKey();
+      if(!apiKey){
+        clearInterval(iv); if(ud) ud.remove();
+        showScreen('screen-input');
+        setError('Configure a API Key Groq em ⚙ Configurações para analisar esta URL.');
+        return;
+      }
+      try{
+        const content = await fetchContent(demoUrl);
+        const result  = await callGroq(apiKey, demoUrl, content, type);
+        result._type  = type;
+        result._isDemo = true;
+        clearInterval(iv); if(ud) ud.remove();
+        renderReport(result);
+      } catch(err){
+        clearInterval(iv); if(ud) ud.remove();
+        showScreen('screen-input');
+        setError('Erro na análise: ' + err.message);
+      }
+    }
+  }, t += 600);
+}
+function goBack(){ showScreen('screen-input'); window.currentData = null; }
+
+window.addEventListener('DOMContentLoaded', () => {
+  const t = localStorage.getItem('puv-theme') || 'dark';
+  const fs = localStorage.getItem('puv-fs') || '16';
+  setTheme(t);
+  setFontSize(fs);
+  loadApiKey();
+  iaKit.carregar();
+  initBookmarklet();
+  checkCapturedContent();
+  DEMO_SITE.url      = demoUrls.site;
+  DEMO_INSTAGRAM.url = demoUrls.instagram;
+  updateDemoLabels();
+  initHeroSpeedo();
+  document.getElementById('url-input')?.addEventListener('keydown', e => { if(e.key==='Enter') startAnalysis(); });
+});
+
+function initHeroSpeedo(){
+  const cx=130, cy=128, ro=95, ri=68;
+  const zones = [
+    {s:0,  e:30,  col:'#FF4060'},
+    {s:30, e:55,  col:'#E040A0'},
+    {s:55, e:70,  col:'#FF8800'},
+    {s:70, e:85,  col:'#00B4FF'},
+    {s:85, e:100, col:'#00DD66'},
+  ];
+
+  function segAngle(p){ return Math.PI - (p/100)*Math.PI; }
+
+  function arcPath(s, e, gap=1.2){
+    const sA=s+(s===0?0:gap), eA=e-(e===100?0:gap), steps=60;
+    let d='';
+    for(let i=0;i<=steps;i++){ const t=i/steps,p=sA+t*(eA-sA),a=segAngle(p); d+=i===0?`M${cx+ro*Math.cos(a)},${cy-ro*Math.sin(a)}`:`L${cx+ro*Math.cos(a)},${cy-ro*Math.sin(a)}`; }
+    for(let i=steps;i>=0;i--){ const t=i/steps,p=sA+t*(eA-sA),a=segAngle(p); d+=`L${cx+ri*Math.cos(a)},${cy-ri*Math.sin(a)}`; }
+    return d+'Z';
+  }
+  function arcBgPath(s, e){ return arcPath(s, e, 0); }
+
+  // Draw static arcs
+  zones.forEach((z,i) => {
+    document.getElementById('hbg'+(i+1))?.setAttribute('d', arcBgPath(z.s, z.e));
+    const el = document.getElementById('harc'+(i+1));
+    if(el){ el.setAttribute('d', arcPath(z.s, z.e)); el.setAttribute('fill', z.col); }
+  });
+
+  // Draw ticks
+  const tg = document.getElementById('hero-ticks');
+  if(tg){
+    let tickHtml = '';
+    for(let i=0;i<=50;i++){
+      const p=i*2, a=segAngle(p), isMajor=p%10===0, isMid=p%5===0&&!isMajor;
+      const o1=ro+2, o2=isMajor?ro+12:isMid?ro+8:ro+5;
+      const sw=isMajor?1.2:isMid?0.8:0.5;
+      const op=isMajor?0.55:isMid?0.28:0.15;
+      tickHtml+=`<line x1="${(cx+o1*Math.cos(a)).toFixed(1)}" y1="${(cy-o1*Math.sin(a)).toFixed(1)}" x2="${(cx+o2*Math.cos(a)).toFixed(1)}" y2="${(cy-o2*Math.sin(a)).toFixed(1)}" stroke="rgba(255,255,255,${op})" stroke-width="${sw}" stroke-linecap="round"/>`;
+    }
+    tg.innerHTML = tickHtml;
+  }
+
+  // Position fixed elements
+  document.getElementById('hero-hub')?.setAttribute('cx', cx);
+  document.getElementById('hero-hub')?.setAttribute('cy', cy);
+  document.getElementById('hero-dot')?.setAttribute('cx', cx);
+  document.getElementById('hero-dot')?.setAttribute('cy', cy);
+  const scoreEl = document.getElementById('hero-score');
+  const ptsEl   = document.getElementById('hero-pts');
+  if(scoreEl){ scoreEl.setAttribute('x', cx); scoreEl.setAttribute('y', cy+34); }
+  if(ptsEl)  { ptsEl.setAttribute('x', cx); ptsEl.setAttribute('y', cy+50); }
+
+  // Animation: oscillate through scores
+  const waypoints = [10,35,58,74,91,74,58,35,10,28,64,85,49];
+  let wp=0, currentScore=10, targetScore=waypoints[0];
+  let animFrame=null, transitioning=false, progress=0;
+  const DURATION = 2200;
+
+  function zoneColor(s){ return getZoneColor(s); }
+
+  function setNeedle(score){
+    const a = segAngle(score);
+    const nx = cx + 90*Math.cos(a), ny = cy - 90*Math.sin(a);
+    const col = zoneColor(score);
+    document.getElementById('hero-needle')?.setAttribute('x1',cx);
+    document.getElementById('hero-needle')?.setAttribute('y1',cy);
+    document.getElementById('hero-needle')?.setAttribute('x2',nx.toFixed(1));
+    document.getElementById('hero-needle')?.setAttribute('y2',ny.toFixed(1));
+    document.getElementById('hero-shadow')?.setAttribute('x1',cx);
+    document.getElementById('hero-shadow')?.setAttribute('y1',cy);
+    document.getElementById('hero-shadow')?.setAttribute('x2',nx.toFixed(1));
+    document.getElementById('hero-shadow')?.setAttribute('y2',ny.toFixed(1));
+    if(scoreEl){ scoreEl.textContent=Math.round(score); scoreEl.setAttribute('fill',col); }
+    document.getElementById('hero-dot')?.setAttribute('fill',col);
+    // Highlight active zone
+    zones.forEach((z,i)=>{
+      const el=document.getElementById('harc'+(i+1));
+      if(!el) return;
+      const active = score>=z.s && score<=z.e;
+      el.setAttribute('opacity', active?'1':'0.6');
+    });
+  }
+
+  function easeInOut(t){ return t<0.5?2*t*t:1-Math.pow(-2*t+2,2)/2; }
+
+  let lastTs = null;
+  function animate(ts){
+    if(!lastTs) lastTs=ts;
+    const dt = ts - lastTs; lastTs=ts;
+    progress += dt/DURATION;
+    if(progress>=1){
+      progress=0;
+      currentScore=targetScore;
+      wp=(wp+1)%waypoints.length;
+      targetScore=waypoints[wp];
+    }
+    const e = easeInOut(Math.min(progress,1));
+    const score = currentScore + (targetScore-currentScore)*e;
+    setNeedle(score);
+    animFrame=requestAnimationFrame(animate);
+  }
+
+  setNeedle(currentScore);
+  animFrame=requestAnimationFrame(animate);
+
+  // Pause when tab not visible
+  document.addEventListener('visibilitychange',()=>{
+    if(document.hidden){ cancelAnimationFrame(animFrame); }
+    else { lastTs=null; animFrame=requestAnimationFrame(animate); }
+  });
+}
 </script>
 </body>
 </html>
